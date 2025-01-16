@@ -1,6 +1,6 @@
 module GTAPv7
 
-using NamedArrays, Ipopt, JuMP
+using NamedArrays, Ipopt, JuMP, JLD2
 import CGEHelpers: cde, ces
 
 include("./helpers/aggComb.jl")
@@ -22,5 +22,8 @@ include("./aggregate_data.jl")
 
 # Function that calculates starting values for data and parameters
 include("./generate_starting_values.jl")
+
+# Get sample data
+include("./get_sample_data.jl")
 
 end
