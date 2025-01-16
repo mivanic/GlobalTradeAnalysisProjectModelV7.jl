@@ -15,7 +15,7 @@ To run the GTAPv7 model, you need to follow the following steps:
     - If you are interested in actual GTAP data, you may obtain a free dataset from [the GTAP Center's website](https://www.gtap.agecon.purdue.edu/)
     - To turn a Fortran-style HAR file into a Julia dictionary, you may use package [HeaderArrayFile](https://github.com/mivanic/HeaderArrayFile.jl)
     - You may either aggregate your data outside module `GTAPv7`, e.g., by using GTAPAgg or FlexAgg programs also distributed by the GTAP Center, or you can use function `aggregate_data` in model `GTAPv7` as explained below
-- A tiny aggregation (four regions, four commodities, four factors) of the GTAP database is provided with the package for testing using function get_sample_data()
+- A sample aggregation of the free GTAP version 9 database is provided with the package for testing using function get_sample_data()
 
 ## Install the package
 
@@ -49,28 +49,33 @@ parameters = HeaderArrayFile.readHar("./gsdfpar.har")
 data = HeaderArrayFile.readHar("./gsdfdat.har")
 sets = HeaderArrayFile.readHar("./gsdfset.har")
 
-# Aggregate the data
+# Aggregate the data (assuming version 11 data)
 
 ## Prepare the mapping vectors
 ## You can start by reading the regions, commodities and endowments from the disaggregated data and modifying them
 regMap = NamedArray(sets["reg"], sets["reg"])
-regMap[1:27] .= "oceania+asia"
+regMap[1:3] .= "oceania"
+regMap[4:27] .= "asia"
 regMap[28:55] .= "americas"
-regMap[56:98] .= "eu+oeurope"
-regMap[99:160] .= "mena+africa"
+regMap[56:82] .= "eu"
+regMap[83:98] .= "other europe"
+regMap[99:121] .= "mena"
+regMap[122:160] .= "subsaharan africa"
 
 
 comMap = NamedArray(copy(sets["comm"]), copy(sets["comm"]))
-comMap[1:12] .= "ag"
+comMap[1:8] .= "crops"
+comMap[9:12] .= "animals"
 comMap[13:18] .= "extract"
-comMap[19:45] .= "manuf"
+comMap[19:26] .= "processed food"
+comMap[27:45] .= "manuf"
 comMap[46:65] .= "svces"
 
 endMap = NamedArray(copy(sets["endw"]), copy(sets["endw"]))
 endMap[:] .= "other"
 endMap[1:1] .= "land"
-endMap[[2,5]] .= "labor"
-endMap[[3,4,6]] .= "labor"
+endMap[[2,5]] .= "skilled labor"
+endMap[[3,4,6]] .= "unskilled labor"
 endMap["capital"] = "capital"
 
 using GeneralEquilibrium.ModelLibrary.GTAPv7
@@ -124,7 +129,7 @@ data0 = deepcopy(data)
 
 ```
 # Set the tariff on crops from ssafrica to eu to 1.2 (20 percent)
-calibrated_data["tms"]["ag", "mena+africa", "eu+oeurope"] = 1.2
+calibrated_data["tms"]["crops", "mena", "eu"] = 1.2
 
 # Run the model
 (; data) = GTAPv7.model(sets=sets, data=calibrated_data, parameters=parameters, fixed=fixed, max_iter=20)
@@ -137,7 +142,7 @@ data1 = deepcopy(data)
 
 ```
 # Show the change in exports (percent)
-((data1["qxs"]./data0["qxs"])[:, :, "eu+oeurope"] .- 1) .* 100
+((data1["qxs"]./data0["qxs"])[:, :, "eu"] .- 1) .* 100
 
 ```
 
