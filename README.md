@@ -17,6 +17,19 @@ To run the GTAPv7 model, you need to follow the following steps:
     - You may either aggregate your data outside module `GTAPv7`, e.g., by using GTAPAgg or FlexAgg programs also distributed by the GTAP Center, or you can use function `aggregate_data` in model `GTAPv7` as explained below
 - A tiny aggregation (four regions, four commodities, four factors) of the GTAP database is provided with the package for testing using function get_sample_data()
 
+## Install the package
+
+```
+using Pkg
+Pkg.add(url="https://github.com/mivanic/GTAPv7.jl")
+```
+
+## Import the package
+
+```
+using GTAPv7
+```
+
 ## Aggregating the data
 
 - To aggregate GTAP data in module `GTAPv7`, you can run function `aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)` with the following arguments:
@@ -94,8 +107,7 @@ calibrated_data = deepcopy(data)
 # Calibrate the data and parameters
 
 ```
-(; data, parameters) = GTAPv7.calibrate(start_data = start_data, data=data, sets=sets,  start_parameters=parameters, fixed=fixed)
-
+(; data, parameters) = GTAPv7.calibrate(start_data = start_data, data=data, sets=sets,  parameters=parameters, fixed=fixed)
 calibrated_data = copy(data)
 ```
 
@@ -113,7 +125,7 @@ data0 = deepcopy(data)
 
 ```
 # Set the tariff on crops from ssafrica to eu to 1.2 (20 percent)
-data["tms"]["crops", "mena+africa", "eu"] = 1.2
+data["tms"]["crops", "mena+africa", "eu+oeurope"] = 1.2
 
 # Run the model
 (; data, calibrated_parameters) = GTAPv7.model(sets=sets, data=data, parameters=parameters, calibrated_parameters=calibrated_calibrated_parameters, fixed=fixed, hData=hData, calibrate=false, max_iter=20)
