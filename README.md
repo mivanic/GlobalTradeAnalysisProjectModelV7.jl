@@ -100,22 +100,21 @@ start_data = deepcopy(data)
 
 ```
 (; data) = GTAPv7.model(sets=sets, data=start_data, parameters=parameters, fixed=fixed, max_iter=30, constr_viol_tol = 1e-8)
-calibrated_data = deepcopy(data)
+solved_data = deepcopy(data)
 ```
 
 
 # Calibrate the data and parameters
 
 ```
-(; data, parameters) = GTAPv7.calibrate(start_data = start_data, data=data, sets=sets,  parameters=parameters, fixed=fixed)
-calibrated_data = copy(data)
+calibrated_data = GTAPv7.calibrate(start_data = start_data, data=solved_data, sets=sets,  parameters=parameters, fixed=fixed)
 ```
 
 
 # Running baseline scenario (the world before the shock)
 
 ```
-(; data) = GTAPv7.model(sets=sets, data=calibrated_data, parameters=parameters,  fixed=fixed, calibrate=false, max_iter = 20)
+(; data) = GTAPv7.model(sets=sets, data=calibrated_data, parameters=parameters,  fixed=fixed, max_iter = 20)
 
 # Let's save the state of the world before the simulation
 data0 = deepcopy(data)
@@ -125,10 +124,10 @@ data0 = deepcopy(data)
 
 ```
 # Set the tariff on crops from ssafrica to eu to 1.2 (20 percent)
-data["tms"]["crops", "mena+africa", "eu+oeurope"] = 1.2
+calibrated_data["tms"]["ag", "mena+africa", "eu+oeurope"] = 1.2
 
 # Run the model
-(; data, calibrated_parameters) = GTAPv7.model(sets=sets, data=data, parameters=parameters, calibrated_parameters=calibrated_calibrated_parameters, fixed=fixed, hData=hData, calibrate=false, max_iter=20)
+(; data) = GTAPv7.model(sets=sets, data=calibrated_data, parameters=parameters, fixed=fixed, max_iter=20)
 
 # Save the world after the simulation
 data1 = deepcopy(data)
