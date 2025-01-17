@@ -1,7 +1,7 @@
 module GTAPv7
 
 using NamedArrays, Ipopt, JuMP, JLD2
-import CGEHelpers: cde, ces
+import ComputableGeneralEquilibriumHelpers: cde, ces
 
 include("./helpers/aggComb.jl")
 include("./helpers/agg.jl")
