@@ -90,7 +90,7 @@ function ev(; sets, data0, data1, parameters, max_iter=50, constr_viol_tol=1e-5,
     # Set starting values
     for k in keys(data0)
         if Symbol(k) ∈ keys(object_dictionary(model))
-            if data[k] isa NamedArray
+            if data0[k] isa NamedArray
                 set_start_value.(model[Symbol(k)], Array(data0[k]))
             else
                 set_start_value.(model[Symbol(k)], data0[k])
@@ -136,7 +136,7 @@ function ev(; sets, data0, data1, parameters, max_iter=50, constr_viol_tol=1e-5,
 
     return (
         sets=sets,
-        data=merge(data, Dict(k => results[k] for k ∈ setdiff(keys(results), keys(parameters)))),
+        data=Dict(k => results[k] for k ∈ setdiff(keys(results), keys(parameters))),
         parameters=merge(parameters, Dict(k => results[k] for k ∈ keys(results) ∩ keys(parameters))),
         constraints=constraints,
         free_variables=free_variables,
