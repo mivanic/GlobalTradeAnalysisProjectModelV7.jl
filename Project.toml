@@ -11,7 +11,7 @@ JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 NamedArrays = "86f7a689-2022-50b4-a561-43c23ac3c673"
 
 [compat]
-CGEHelpers = "1.0.0"
+CGEHelpers = "0.1.0"
 Ipopt = "1.7.1"
 JLD2 = "0.5.11"
 JuMP = "1.23.6"
