@@ -132,8 +132,6 @@ function ev(; sets, data0, data1, parameters, max_iter=50, constr_viol_tol=1e-5,
             if v isa VariableRef
         ))
 
-    results["y"] .- data0["y"]
-
     return (
         sets=sets,
         data=Dict(k => results[k] for k ∈ setdiff(keys(results), keys(parameters))),
