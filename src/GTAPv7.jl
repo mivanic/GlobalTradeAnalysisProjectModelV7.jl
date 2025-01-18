@@ -1,5 +1,7 @@
 module GTAPv7
 
+export generate_starting_values, get_sample_data, model, ev, calibrate
+
 using NamedArrays, Ipopt, JuMP, JLD2
 import ComputableGeneralEquilibriumHelpers: cde, ces
 
