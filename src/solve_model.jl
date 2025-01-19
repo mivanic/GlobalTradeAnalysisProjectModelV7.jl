@@ -1,4 +1,4 @@
-function model(; sets, data, parameters, fixed, max_iter=50, constr_viol_tol=1e-5, bound_push=1e-15)
+function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_tol=1e-5, bound_push=1e-15)
 
     # Structural parameters (some CES/CET options are not happening)
     δ_evfp = data["evfp"] .> 1e-6
