@@ -1,6 +1,6 @@
 module GTAPv7
 
-export generate_starting_values, get_sample_data, model, ev, calibrate
+export generate_starting_values, get_sample_data, model, ev, calibrate, gdp
 
 using NamedArrays, Ipopt, JuMP, JLD2
 import ComputableGeneralEquilibriumHelpers: cde, ces
@@ -19,6 +19,7 @@ include("./helpers/prepare_initial_calibrated_parameters.jl")
 include("./model.jl")
 include("./calibrate.jl")
 include("./ev.jl")
+include("./gdp.jl")
 
 # Function that aggregates data on the assumption that the standard GTAP data are provided (based on headers)
 include("./aggregate_data.jl")
