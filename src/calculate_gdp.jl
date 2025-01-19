@@ -1,4 +1,4 @@
-function gdp(; sets, data0, data1, parameters, max_iter=50, constr_viol_tol=1e-5, bound_push=1e-15)
+function calculate_gdp(; sets, data0, data1, parameters, max_iter=50, constr_viol_tol=1e-5, bound_push=1e-15)
 
 
     return NamedArray((mapslices(sum, data1["qga"] .* data0["pga"] .+ data1["qpa"] .* data0["ppa"] .+ data1["qia"] .* data0["pia"] .+

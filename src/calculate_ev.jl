@@ -1,4 +1,4 @@
-function ev(; sets, data0, data1, parameters, max_iter=50, constr_viol_tol=1e-5, bound_push=1e-15)
+function calculate_ev(; sets, data0, data1, parameters, max_iter=50, constr_viol_tol=1e-5, bound_push=1e-15)
 
     # Read  sets
     (; reg, comm) = NamedTuple(Dict(Symbol(k) => sets[k] for k ∈ keys(sets)))
