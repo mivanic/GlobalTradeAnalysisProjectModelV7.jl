@@ -165,6 +165,7 @@ function prepare_quantities(; data, parameters, sets, hData)
         :vmgp => hData["vmgp"],
         :vdip => hData["vdip"],
         :vmip => hData["vmip"],
+        :vkb => hData["vkb"],
         :uepriv => uepriv,
         :uelas => uelas
     )

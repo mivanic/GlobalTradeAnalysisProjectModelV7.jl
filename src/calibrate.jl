@@ -92,6 +92,12 @@ function calibrate(; start_data, data, sets=sets, parameters, fixed, max_iter=10
     fixed = merge(fixed, Dict("ϵ_qinv" => true))
     calibrate_start["σ_qinv"] = (start_data["psave"] .* start_data["qsave"]) / sum(start_data["psave"] .* start_data["qsave"])
 
+
+    # CAL-IX
+    fixed["ρ"] = NamedArray(falses(size(data["kb"])), names(data["kb"])...)
+    fixed["σ_ρ"] = NamedArray(trues(size(data["kb"])), names(data["kb"])...)
+    calibrate_start["σ_ρ"] = mapslices(sum, start_data["evos"], dims=[1,2])[1,1,:] ./ start_data["vkb"]
+
     fixed["ppa"] .= false
     fixed["vdpp"] = NamedArray(falses(size(data["vdpp"])), names(data["vdpp"]))
     fixed["vdpp"][1, 1] = true

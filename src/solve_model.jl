@@ -227,6 +227,7 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             0 <= vst[marg, reg]
             0 <= vtwr[marg, comm, reg, reg]
             0 <= maks[comm, acts, reg]
+            0 <= vkb[reg]
 
             # Shares (helpers to calibrate)
             0 <= σ_vp[comm, reg]
@@ -242,6 +243,7 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             0 <= σ_vtwr[marg, comm, reg, reg]
             0 <= σ_qxs[comm, reg, reg]
             -1 <= σ_qinv[reg] <=1
+            0 <= σ_ρ[acts, reg]
         end
     )
 
@@ -410,7 +412,8 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             e_walras_dem, log(walras_dem) == log(sum(psave .* qsave))
 
             # Capital accumulation
-            e_kb[r=reg], log(ρ[r] * pinv[r] * kb[r]) == log(sum(qe[endwc, r] .* pe[endwc, r]))
+            #e_kb[r=reg], log(ρ[r] * pinv[r] * kb[r]) == log(sum(qe[endwc, r] .* pe[endwc, r]))
+            e_kb[r=reg], log(ρ[r] * kb[r]) == log(sum(qe[endwc, r]))
             e_ke, log.(ke) .== log.(qinv .+ (1 .- δ) .* kb)
 
             # Values
@@ -429,6 +432,7 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             cvst[m=marg], log.(vst[m, :]) .== log.(pds[m, :] .* qst[m, :])
             cvtwr[c=comm, s=reg, d=reg], log.(Vector(vtwr[:, c, s, d])[δ_vtwr[:, c, s, d]]) .== log.(Vector(pt .* qtmfsd[:, c, s, d])[δ_vtwr[:, c, s, d]])
             cmaks, log.(maks) .== log.(ps .* qca)
+            cvkb, log.(vkb) .== log.(kb .* pinv)
 
             # Soft parameter constraints
             sf_α_qxs[c=comm, d=reg], log(sum(Vector(α_qxs[c, :, d])[δ_qxs[c, :, d]])) == log(ϵ_qxs[c, d])
@@ -459,6 +463,7 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             e_σ_vtwr[m=marg, c=comm, s=reg, d=reg], σ_vtwr[m,c,s,d] * pcif[c,s,d] * qxs[c,s,d] == pt[m] * qtmfsd[m, c, s, d] 
             e_σ_qxs[c=comm, s=reg, d=reg], σ_qxs[c, s, d] * sum(Vector(pcif[c, :, d] .* qxs[c, :, d])[δ_qxs[c, :, d]]) == pcif[c, s, d] .* qxs[c, s, d]
             e_σ_qinv[r = reg], σ_qinv[r] * sum(psave .* qsave) == psave[r] * qsave[r]
+            e_σ_ρ[r=reg], (kb[r] * pinv[r]) * σ_ρ[r] == sum(Array(pes[:,:,r] .* qes[:,:,r])[δ_evfp[:, :, r]]) 
         end
     )
 
