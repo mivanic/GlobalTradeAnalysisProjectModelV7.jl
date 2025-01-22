@@ -357,7 +357,8 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             e_pga, log.(qga .* pga) .== log.(pgd .* qgd .+ pgm .* qgm)
 
             # Saving
-            e_qsave, log.(y) .== log.(yp .+ yg .+ psave .* qsave ./ uelas)
+            # e_qsave, log.(y) .== log.(yp .+ yg .+ psave .* qsave ./ uelas)
+            e_qsave, log.(y .* uelas) .== log.(σyp .* y .* uelas .+ σyg .* y .* uelas + psave .* qsave)
 
             # Investment consumption
             e_qia[r=reg], log.(qia[:, r]) .== log.(ces(qinv[r], pia[:, r], Vector(α_qia[:, r]), 0, γ_qia[r]))
