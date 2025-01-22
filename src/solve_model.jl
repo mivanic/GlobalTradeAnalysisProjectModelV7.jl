@@ -243,7 +243,7 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             0 <= σ_vtwr[marg, comm, reg, reg]
             0 <= σ_qxs[comm, reg, reg]
             -1 <= σ_qinv[reg] <=1
-            0 <= σ_ρ[acts, reg]
+            0 <= σ_ρ[reg]
         end
     )
 
