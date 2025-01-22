@@ -33,8 +33,8 @@ function calculate_ev(; sets, data0, data1, parameters, max_iter=50, constr_viol
             # Private consumption        
             y_min <= yp[reg] <= y_max
             q_min <= up[reg] <= q_max
-            0 <= Φ[reg] <= 10
-            0 <= Φᴾ[reg] <= 10
+            0 <= uelas[reg] <= 10
+            0 <= uepriv[reg] <= 10
             p_min <= ppa[comm, reg] <= p_max
             q_min <= qpa[comm, reg] <= q_max
 
@@ -66,24 +66,24 @@ function calculate_ev(; sets, data0, data1, parameters, max_iter=50, constr_viol
             e_u, u .== up.^σyp .* ug.^σyg .* us.^(1 .-σyp .- σyg)
             e_ug, ug .== yg ./ pop ./ pgov
             e_us, us .== qsave ./ pop
-            e_Φᴾ[r=reg], Φᴾ[r] == sum(qpa[:, r] .* ppa[:, r] .* Vector(incpar[:, r])) / yp[r]
-            e_Φ[r=reg], Φ[r] == 1 / (σyp[r] / Φᴾ[r] + σyg[r] + (1 - σyp[r] - σyg[r]))
+            e_uepriv[r=reg], uepriv[r] == sum(qpa[:, r] .* ppa[:, r] .* Vector(incpar[:, r])) / yp[r]
+            e_uelas[r=reg], uelas[r] == 1 / (σyp[r] / uepriv[r] + σyg[r] + (1 - σyp[r] - σyg[r]))
 
             # Household Income
-            e_yp, log.(yp) .== log.(y .* Vector(σyp) .* Φ ./ Φᴾ)
+            e_yp, log.(yp) .== log.(y .* Vector(σyp) .* uelas ./ uepriv)
 
             # Household consumption
             e_qpa[r=reg], log.([Vector(qpa[:, r] ./ pop[r]); 1]) .== log.(cde(Vector(1 .- subpar[:, r]), Vector(β_qpa[:, r]), Vector(incpar[:, r]), up[r], Vector(ppa[:, r]), yp[r] / pop[r]))
 
             # Government Income
-            e_yg, log.(yg) .== log.(y .* Vector(σyg) .* Φ)
+            e_yg, log.(yg) .== log.(y .* Vector(σyg) .* uelas)
 
             # Government expenditure
             e_qga[r=reg], log.(pga[:, r] .* qga[:, r]) .== log.(yg[r] .* Vector(α_qga[:, r])) ##This one
             e_pgov[r=reg], log.(pgov[r] * sum(qga[:, r])) == log.(sum(qga[:, r] .* pga[:, r]))
 
             # Saving
-            e_qsave, log.(y) .== log.(yp .+ yg .+ psave .* qsave .* Φ)
+            e_qsave, log.(y) .== log.(yp .+ yg .+ psave .* qsave .* uelas)
         end
     )
 

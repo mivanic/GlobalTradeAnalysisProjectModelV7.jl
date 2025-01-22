@@ -75,8 +75,8 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             # Private consumption        
             y_min <= yp[reg] <= y_max
             q_min <= up[reg] <= q_max
-            0 <= Φ[reg] <= 10
-            0 <= Φᴾ[reg] <= 10
+            0 <= uelas[reg] <= 10
+            0 <= uepriv[reg] <= 10
             p_min <= ppa[comm, reg] <= p_max
             q_min <= qpa[comm, reg] <= q_max
             p_min <= ppd[comm, reg] <= p_max
@@ -335,18 +335,18 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             e_u, u .== up.^σyp .* ug.^σyg .* us.^(1 .-σyp .- σyg)
 
             # Household Income
-            e_yp, log.(yp) .== log.(y .* Vector(σyp) .* Φ ./ Φᴾ)
+            e_yp, log.(yp) .== log.(y .* Vector(σyp) .* uelas ./ uepriv)
 
             # Household consumption
             e_qpa[r=reg], log.([Vector(qpa[:, r] ./ pop[r]); 1]) .== log.(cde(Vector(1 .- subpar[:, r]), Vector(β_qpa[:, r]), Vector(incpar[:, r]), up[r], Vector(ppa[:, r]), yp[r] / pop[r]))
-            e_Φᴾ[r=reg], Φᴾ[r] == sum(qpa[:, r] .* ppa[:, r] .* Vector(incpar[:, r])) / yp[r]
-            e_Φ[r=reg], Φ[r] == 1 / (σyp[r] / Φᴾ[r] + σyg[r] + (1 - σyp[r] - σyg[r]))
+            e_uepriv[r=reg], uepriv[r] == sum(qpa[:, r] .* ppa[:, r] .* Vector(incpar[:, r])) / yp[r]
+            e_uelas[r=reg], uelas[r] == 1 / (σyp[r] / uepriv[r] + σyg[r] + (1 - σyp[r] - σyg[r]))
             e_qpdqpm[c=comm, r=reg], log.([qpd[c, r], qpm[c, r]]) .== log.(ces(qpa[c, r], [ppd[c, r], ppm[c, r]], α_qpdqpm[:, c, r], esubd[c, r], γ_qpdqpm[c, r]))
             e_ppa, log.(qpa .* ppa) .== log.(ppd .* qpd .+ ppm .* qpm)
             e_ppriv[r = reg], log(ppriv[r] * sum(qpa[:,r])) == log(sum(ppa[:,r].*qpa[:,r]))
 
             # Government Income
-            e_yg, log.(yg) .== log.(y .* Vector(σyg) .* Φ)
+            e_yg, log.(yg) .== log.(y .* Vector(σyg) .* uelas)
 
             # Government expenditure
             e_qga[r=reg], log.(pga[:, r] .* qga[:, r]) .== log.(yg[r] .* Vector(α_qga[:, r])) ##This one
@@ -355,7 +355,7 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             e_pga, log.(qga .* pga) .== log.(pgd .* qgd .+ pgm .* qgm)
 
             # Saving
-            e_qsave, log.(y) .== log.(yp .+ yg .+ psave .* qsave ./ Φ)
+            e_qsave, log.(y) .== log.(yp .+ yg .+ psave .* qsave ./ uelas)
 
             # Investment consumption
             e_qia[r=reg], log.(qia[:, r]) .== log.(ces(qinv[r], pia[:, r], Vector(α_qia[:, r]), 0, γ_qia[r]))

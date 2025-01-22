@@ -109,8 +109,8 @@ function prepare_quantities(; data, parameters, sets, hData)
     kb = hData["vkb"] ./ pinv
     ke = (hData["vkb"] .- hData["vdep"]) ./pinv .+ qinv 
    
-    Φ = NamedArray(ones(length(reg)), reg)
-    Φᴾ = NamedArray(ones(length(reg)), reg)
+    uepriv = NamedArray(ones(length(reg)), reg)
+    uelas = NamedArray(ones(length(reg)), reg)
 
     quantities = Dict(
         :qint => qint,
@@ -165,8 +165,8 @@ function prepare_quantities(; data, parameters, sets, hData)
         :vmgp => hData["vmgp"],
         :vdip => hData["vdip"],
         :vmip => hData["vmip"],
-        :Φᴾ => Φᴾ,
-        :Φ => Φ
+        :uepriv => uepriv,
+        :uelas => uelas
     )
 
     return merge(data, Dict(String(k)=>quantities[k] for k ∈ keys(quantities)))
