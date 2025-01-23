@@ -365,7 +365,8 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             e_pinv[r=reg], log.(pinv[r] * sum(qia[:, r])) == log.(sum(pia[:, r] .* qia[:, r]))
             e_qidqim[c=comm, r=reg], log.([qid[c, r], qim[c, r]]) .== log.(ces(qia[c, r], [pid[c, r], pim[c, r]], Vector(α_qidqim[:, c, r]), esubd[c, r], γ_qidqim[c, r]))
             e_pia, log.(pia .* qia) .== log.(pid .* qid .+ pim .* qim)
-            e_psave, log.(psave) .== log.(pinv)
+            #e_psave, log.(psave) .== log.(pinv)
+            e_psave[r=reg], log(psave[r] ) == log(pinv[r]  + sum(((qinv .- δ .* kb) .- qsave) .* pinv ./ sum(qinv .- δ .* kb) ))
 
             # Trade - exports
             e_qms[c=comm, r=reg], log.(qms[c, r]) == log.(sum(qfm[c, :, r]) + qpm[c, r] + qgm[c, r] + qim[c, r])
