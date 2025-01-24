@@ -14,7 +14,7 @@ To run the GTAP version 7 model, you need to follow the following steps:
     - The sets, data and parameters need to be provided as a dictionary with the correct keys matching the headers of the model file for GEMPACK in lower case. For example, the data should contain key "vfob" with a three dimensional array with the value of bilateral trade measured FOB
     - If you are interested in actual GTAP data, you may obtain a free dataset from [the GTAP Center's website](https://www.gtap.agecon.purdue.edu/)
     - To turn a Fortran-style HAR file into a Julia dictionary, you may use package [HeaderArrayFile](https://github.com/mivanic/HeaderArrayFile.jl)
-    - You may either aggregate your data outside module `GlobalTradeAnalysisProjectModelV7`, e.g., by using GTAPAgg or FlexAgg programs also distributed by the GTAP Center, or you can use function `aggregate_data` in model `GTAPv7` as explained below
+    - You may either aggregate your data outside module `GlobalTradeAnalysisProjectModelV7`, e.g., by using GTAPAgg or FlexAgg programs also distributed by the GTAP Center, or you can use function `aggregate_data` in module `GlobalTradeAnalysisProjectModelV7` as explained below
 - A sample aggregation of the free GTAP version 9 database is provided with the package for testing using function get_sample_data()
 
 ## Install the package
@@ -32,9 +32,9 @@ using GlobalTradeAnalysisProjectModelV7
 
 ## Aggregating the data
 
-- To aggregate GTAP data in module `GTAPv7`, you can run function `aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)` with the following arguments:
-    - `hData`: a Dict object with the keys appropriate for the GTAPv7 model data (e.g., "vfob", "evos", etc.)
-    - `hParameters`: a Dict object with the keys appropriate for the GTAPv7 model parameters (e.g., "esbq", etc.)
+- To aggregate GTAP data in module `GTAPvGlobalTradeAnalysisProjectModelV77`, you can run function `aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)` with the following arguments:
+    - `hData`: a Dict object with the keys appropriate for the GTAP version 7 model data (e.g., "vfob", "evos", etc.)
+    - `hParameters`: a Dict object with the keys appropriate for the GTAP version 7 model parameters (e.g., "esbq", etc.)
     - `comMap`: a Named Vector which maps original commodities to the new ones 
     - `regMap`: a Named Vector which maps original regions to the new ones
     - `endMap`: a Named Vector which maps original endowments to the new ones
@@ -78,8 +78,6 @@ endMap[[2,5]] .= "skilled labor"
 endMap[[3,4,6]] .= "unskilled labor"
 endMap["capital"] = "capital"
 
-using GeneralEquilibrium.ModelLibrary.GTAPv7
-
 # Do the aggregation
 (; hData, hParameters, hSets) = aggregate_data(hData=data, hParameters=parameters, hSets=sets, comMap=comMap, regMap=regMap, endMap=endMap)
 
@@ -89,7 +87,7 @@ using GeneralEquilibrium.ModelLibrary.GTAPv7
 
 ```
 
-(; hData, hParameters, hSets) = GTAPv7.get_sample_data()
+(; hData, hParameters, hSets) = get_sample_data()
 
 ```
 
