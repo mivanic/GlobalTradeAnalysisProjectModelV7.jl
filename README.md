@@ -1,12 +1,12 @@
-# GTAPv7
+# GlobalTradeAnalysisProjectModelV7
 
-[![Build Status](https://github.com/mivanic/GTAPv7.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/mivanic/GTAPv7.jl/actions/workflows/CI.yml?query=branch%3Amaster)
+[![Build Status](https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7/actions/workflows/CI.yml?query=branch%3Amaster)
 
 ## Purpose of the package
 
-The purpose of this package is to allow CGE modelers to run GTAP v7 in Julia, from start to finish, i.e. from data aggregation to results.
+The purpose of this package is to allow CGE modelers to run GTAP model version 7 in Julia, from start to finish, i.e. from data aggregation to results.
 
-To run the GTAPv7 model, you need to follow the following steps:
+To run the GTAP version 7 model, you need to follow the following steps:
 
 ## Prerequisites
 
@@ -14,20 +14,20 @@ To run the GTAPv7 model, you need to follow the following steps:
     - The sets, data and parameters need to be provided as a dictionary with the correct keys matching the headers of the model file for GEMPACK in lower case. For example, the data should contain key "vfob" with a three dimensional array with the value of bilateral trade measured FOB
     - If you are interested in actual GTAP data, you may obtain a free dataset from [the GTAP Center's website](https://www.gtap.agecon.purdue.edu/)
     - To turn a Fortran-style HAR file into a Julia dictionary, you may use package [HeaderArrayFile](https://github.com/mivanic/HeaderArrayFile.jl)
-    - You may either aggregate your data outside module `GTAPv7`, e.g., by using GTAPAgg or FlexAgg programs also distributed by the GTAP Center, or you can use function `aggregate_data` in model `GTAPv7` as explained below
+    - You may either aggregate your data outside module `GlobalTradeAnalysisProjectModelV7`, e.g., by using GTAPAgg or FlexAgg programs also distributed by the GTAP Center, or you can use function `aggregate_data` in model `GTAPv7` as explained below
 - A sample aggregation of the free GTAP version 9 database is provided with the package for testing using function get_sample_data()
 
 ## Install the package
 
 ```
 using Pkg
-Pkg.add(url="https://github.com/mivanic/GTAPv7.jl")
+Pkg.add("GlobalTradeAnalysisProjectModelV7")
 ```
 
 ## Import the package
 
 ```
-using GTAPv7
+using GlobalTradeAnalysisProjectModelV7
 ```
 
 ## Aggregating the data
@@ -81,7 +81,7 @@ endMap["capital"] = "capital"
 using GeneralEquilibrium.ModelLibrary.GTAPv7
 
 # Do the aggregation
-(; hData, hParameters, hSets) = GTAPv7.aggregate_data(hData=data, hParameters=parameters, hSets=sets, comMap=comMap, regMap=regMap, endMap=endMap)
+(; hData, hParameters, hSets) = aggregate_data(hData=data, hParameters=parameters, hSets=sets, comMap=comMap, regMap=regMap, endMap=endMap)
 
 ```
 
@@ -97,14 +97,14 @@ using GeneralEquilibrium.ModelLibrary.GTAPv7
 
 ```
 # Starting data and parameters
-(; sets, parameters, data, fixed) = GTAPv7.generate_starting_values(hSets=hSets, hData=hData, hParameters=hParameters)
+(; sets, parameters, data, fixed) = generate_starting_values(hSets=hSets, hData=hData, hParameters=hParameters)
 start_data = deepcopy(data)
 ```
 
 # Solve the model with the starting (uncalibrated) data  values
 
 ```
-(; data) = GTAPv7.model(sets=sets, data=start_data, parameters=parameters, fixed=fixed, max_iter=30, constr_viol_tol = 1e-8)
+(; data) = model(sets=sets, data=start_data, parameters=parameters, fixed=fixed, max_iter=30, constr_viol_tol = 1e-8)
 solved_data = deepcopy(data)
 ```
 
@@ -112,14 +112,14 @@ solved_data = deepcopy(data)
 # Calibrate the data and parameters
 
 ```
-calibrated_data = GTAPv7.calibrate(start_data = start_data, data=solved_data, sets=sets,  parameters=parameters, fixed=fixed)
+calibrated_data = calibrate(start_data = start_data, data=solved_data, sets=sets,  parameters=parameters, fixed=fixed)
 ```
 
 
 # Running baseline scenario (the world before the shock)
 
 ```
-(; data) = GTAPv7.model(sets=sets, data=calibrated_data, parameters=parameters,  fixed=fixed, max_iter = 20)
+(; data) = solve_model(sets=sets, data=calibrated_data, parameters=parameters,  fixed=fixed, max_iter = 20)
 
 # Let's save the state of the world before the simulation
 data0 = deepcopy(data)
@@ -132,7 +132,7 @@ data0 = deepcopy(data)
 calibrated_data["tms"]["crops", "mena", "eu"] = 1.2
 
 # Run the model
-(; data) = GTAPv7.model(sets=sets, data=calibrated_data, parameters=parameters, fixed=fixed, max_iter=20)
+(; data) = solve_model(sets=sets, data=calibrated_data, parameters=parameters, fixed=fixed, max_iter=20)
 
 # Save the world after the simulation
 data1 = deepcopy(data)
