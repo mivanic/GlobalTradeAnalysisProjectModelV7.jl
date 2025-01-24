@@ -1,7 +1,7 @@
-name = "GTAPv7"
+name = "GlobalTradeAnalysisProjectModelV7"
 uuid = "17bf7c9d-bd82-4e09-a8b5-dac70c0d12c3"
 authors = ["Maros Ivanic"]
-version = "1.0.0-DEV"
+version = "0.1.0"
 
 [deps]
 ComputableGeneralEquilibriumHelpers = "b2f8801f-5e08-46db-8da3-bbbe1795f4c5"
