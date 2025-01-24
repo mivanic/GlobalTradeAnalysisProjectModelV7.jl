@@ -1,6 +1,6 @@
 # GlobalTradeAnalysisProjectModelV7
 
-[![Build Status](https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7/actions/workflows/CI.yml?query=branch%3Amaster)
+[![Build Status](https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 
 ## Purpose of the package
 

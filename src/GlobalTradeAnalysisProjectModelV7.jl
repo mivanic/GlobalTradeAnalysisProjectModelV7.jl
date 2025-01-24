@@ -1,4 +1,4 @@
-module GTAPv7
+module GlobalTradeAnalysisProjectModelV7
 
 export generate_starting_values, get_sample_data, solve_model, calculate_ev, calibrate, calculate_gdp, aggregate_data, aggregate_data_legacy
 
