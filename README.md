@@ -63,7 +63,7 @@ regMap[99:121] .= "mena"
 regMap[122:160] .= "subsaharan africa"
 
 
-comMap = NamedArray(copy(sets["comm"]), copy(sets["comm"]))
+comMap = NamedArray(sets["comm"], sets["comm"])
 comMap[1:8] .= "crops"
 comMap[9:12] .= "animals"
 comMap[13:18] .= "extract"
@@ -71,7 +71,7 @@ comMap[19:26] .= "processed food"
 comMap[27:45] .= "manuf"
 comMap[46:65] .= "svces"
 
-endMap = NamedArray(copy(sets["endw"]), copy(sets["endw"]))
+endMap = NamedArray(sets["endw"], sets["endw"])
 endMap[:] .= "other"
 endMap[1:1] .= "land"
 endMap[[2,5]] .= "skilled labor"
@@ -138,12 +138,29 @@ data1 = deepcopy(data)
 
 # Analyzing the results
 
+## View changes in variables
+
 ```
 # Show the change in exports (percent)
 ((data1["qxs"]./data0["qxs"])[:, :, "eu"] .- 1) .* 100
 
 ```
 
+## Calculate equivalent variation
 
+```
+ev = calculate_ev(
+                    sets=sets, 
+                    data0=calibrated_data, 
+                    data1=data, 
+                    parameters=parameters
+                  )
+```
 
+## Calculate change in real GDP
 
+```
+qgdp1 = calculate_gdp(sets =sets, data0=calibrated_data, data1=data)
+qgdp0 = calculate_gdp(sets =sets, data0=calibrated_data, data1=calibrated_data)
+(qgdp1 ./ qgdp1 .- 1) .* 100
+```
