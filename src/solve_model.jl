@@ -508,37 +508,48 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             set_start_value.(v, 1.01)
         end
 
-    end
 
-    # Set starting values
-    for k in keys(data)
-        if Symbol(k) ∈ keys(object_dictionary(model))
-            if data[k] isa NamedArray
-                set_start_value.(model[Symbol(k)], Array(data[k]))
-            else
-                set_start_value.(model[Symbol(k)], data[k])
-            end
-        end
-    end
-
-    # Fix fixed values and delete missing ones
-    for fv ∈ keys(fixed)
-        if size(fixed[fv]) == ()
-            if fixed[fv] && is_valid(model, model[Symbol(fv)])
-                if isnan(data[fv])
-                    delete(model, model[Symbol(fv)])
+        # Set starting values
+        for k in keys(data)
+            if Symbol(k) ∈ keys(object_dictionary(model))
+                if data[k] isa NamedArray
+                    set_start_value.(model[Symbol(k)], Array(data[k]))
                 else
-                    fix(model[Symbol(fv)], data[fv]; force=true)
+                    set_start_value.(model[Symbol(k)], data[k])
                 end
             end
-        else
-            for fvi ∈ CartesianIndices(fixed[fv])
-                if fixed[fv][fvi] && is_valid(model, model[Symbol(fv)][fvi])
-                    if isnan(data[fv][fvi])
-                        delete(model, model[Symbol(fv)][fvi])
+        end
+
+        # Fix fixed values and delete missing ones
+        for fv ∈ keys(fixed)
+            if size(fixed[fv]) == ()
+                if fixed[fv] && is_valid(model, model[Symbol(fv)])
+                    if isnan(data[fv])
+                        delete(model, model[Symbol(fv)])
                     else
-                        fix(model[Symbol(fv)][fvi], data[fv][fvi]; force=true)
+                        fix(model[Symbol(fv)], data[fv]; force=true)
                     end
+                end
+            else
+                for fvi ∈ CartesianIndices(fixed[fv])
+                    if fixed[fv][fvi] && is_valid(model, model[Symbol(fv)][fvi])
+                        if isnan(data[fv][fvi])
+                            delete(model, model[Symbol(fv)][fvi])
+                        else
+                            fix(model[Symbol(fv)][fvi], data[fv][fvi]; force=true)
+                        end
+                    end
+                end
+            end
+        end
+    else
+        # If we preloaded model, we only reset starting values
+        for k in keys(data)
+            if Symbol(k) ∈ keys(object_dictionary(model))
+                if data[k] isa NamedArray
+                    set_start_value.(model[Symbol(k)], Array(data[k])[is_valid.(model, Symbol(k))])
+                else
+                    set_start_value.(model[Symbol(k)], data[k][is_valid.(model, Symbol(k))])
                 end
             end
         end
