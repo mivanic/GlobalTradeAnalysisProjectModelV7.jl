@@ -547,9 +547,9 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
         for k in keys(data)
             if Symbol(k) ∈ keys(object_dictionary(model))
                 if data[k] isa NamedArray
-                    set_start_value.(model[Symbol(k)], Array(data[k])[is_valid.(model, Symbol(k))])
+                    set_start_value.(model[Symbol(k)], Array(data[k])[is_valid.(model, model[Symbol(k)])])
                 else
-                    set_start_value.(model[Symbol(k)], data[k][is_valid.(model, Symbol(k))])
+                    set_start_value.(model[Symbol(k)], data[k][is_valid.(model, model[Symbol(k)])])
                 end
             end
         end
