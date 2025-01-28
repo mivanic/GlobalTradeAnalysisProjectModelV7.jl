@@ -543,8 +543,27 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             end
         end
     else
-        # If we preloaded model, we only reset starting values
-        # Fix fixed values and delete missing ones
+        # If we preloaded model, we only fix valid values and reset starting values
+        
+        for fv ∈ keys(fixed)
+            if size(fixed[fv]) == ()
+                if fixed[fv] && is_valid(model, model[Symbol(fv)])
+                    if !isnan(data[fv])
+                        fix(model[Symbol(fv)], data[fv]; force=true)
+                    end
+                end
+            else
+                for fvi ∈ CartesianIndices(fixed[fv])
+                    if fixed[fv][fvi] && is_valid(model, model[Symbol(fv)][fvi])
+                        if !isnan(data[fv][fvi])
+                            fix(model[Symbol(fv)][fvi], data[fv][fvi]; force=true)
+                        end
+                    end
+                end
+            end
+        end
+
+
         for fv ∈ keys(data)
             if size(data[fv]) == ()
                 if is_valid(model, model[Symbol(fv)])
