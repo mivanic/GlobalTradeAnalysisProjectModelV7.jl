@@ -547,14 +547,14 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
         # Fix fixed values and delete missing ones
         for fv ∈ keys(data)
             if size(data[fv]) == ()
-                if data[fv] && is_valid(model, model[Symbol(fv)])
+                if is_valid(model, model[Symbol(fv)])
                     if !isnan(data[fv])
                         set_start_value(model[Symbol(fv)], data[fv])
                     end
                 end
             else
                 for fvi ∈ CartesianIndices(data[fv])
-                    if data[fv][fvi] && is_valid(model, model[Symbol(fv)][fvi])
+                    if is_valid(model, model[Symbol(fv)][fvi])
                         if !isnan(data[fv][fvi])
                             set_start_value(model[Symbol(fv)][fvi], data[fv][fvi])
                         end
