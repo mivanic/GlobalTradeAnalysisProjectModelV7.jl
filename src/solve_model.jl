@@ -543,6 +543,8 @@ function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_t
             end
         end
     else
+
+        printstyled("Using provided model"; color = :yellow)
         # If we preloaded model, we only fix valid values and reset starting values
         
         for fv ∈ keys(fixed)
