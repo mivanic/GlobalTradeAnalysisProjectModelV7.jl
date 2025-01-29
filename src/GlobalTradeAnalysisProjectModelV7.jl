@@ -1,18 +1,9 @@
 module GlobalTradeAnalysisProjectModelV7
 
-export generate_starting_values, get_sample_data, solve_model!, calculate_ev, calibrate, calculate_gdp, aggregate_data, aggregate_data_legacy, model_struct
+export generate_starting_values, get_sample_data, solve_model!, calculate_ev, calibrate, calculate_gdp, aggregate_data, aggregate_data_legacy
 
 using NamedArrays, Ipopt, JuMP, JLD2
 import ComputableGeneralEquilibriumHelpers: cde, ces
-
-
-mutable struct model_struct
-    data
-    sets
-    parameters
-    fixed
-    model
-end
 
 include("./helpers/aggComb.jl")
 include("./helpers/agg.jl")
