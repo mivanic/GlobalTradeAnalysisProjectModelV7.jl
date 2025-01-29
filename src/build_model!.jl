@@ -8,10 +8,10 @@ function build_model!(mc;  max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
         δ_qxs = mc.data["α_qxs"] .!= 0
 
         # Read  sets
-        (; reg, comm, marg, acts, endw, endwc, endws, endwm, endwms, endwf) = NamedTuple(Dict(Symbol(k) => sets[k] for k ∈ keys(sets)))
+        (; reg, comm, marg, acts, endw, endwc, endws, endwm, endwms, endwf) = NamedTuple(Dict(Symbol(k) => mc.sets[k] for k ∈ keys(mc.sets)))
 
         # Read hard parameters
-        (; esubt, esubc, esubva, esubd, etraq, esubq, subpar, incpar, etrae, esubg, esubm, esubs) = NamedTuple(Dict(Symbol(k) => parameters[k] for k ∈ keys(parameters)))
+        (; esubt, esubc, esubva, esubd, etraq, esubq, subpar, incpar, etrae, esubg, esubm, esubs) = NamedTuple(Dict(Symbol(k) => mc.parameters[k] for k ∈ keys(mc.parameters)))
 
         # Set up the general constraints
         p_min = 1e-8
