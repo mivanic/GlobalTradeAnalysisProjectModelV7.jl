@@ -5,10 +5,10 @@ function initialize_model!(mc)
         if Symbol(k) ∈ keys(object_dictionary(mc.model))
             if mc.data[k] isa NamedArray
                 set_start_value.(mc.model[Symbol(k)], Array(mc.data[k]))
-                unfix.(mc.model[Symbol(k)])
+                unfix.(mc.model[Symbol(k)][is_fixed.(mc.model[Symbol(k)])])
             else
                 set_start_value.(mc.model[Symbol(k)], mc.data[k])
-                unfix.(mc.model[Symbol(k)])
+                unfix.(mc.model[Symbol(k)][is_fixed.(mc.model[Symbol(k)])])
             end
         end
     end
