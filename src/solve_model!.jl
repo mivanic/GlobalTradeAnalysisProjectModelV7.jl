@@ -598,8 +598,8 @@ function solve_model!(inputs; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-1
     results = merge(Dict(
             String(k) => begin
                 arrayOut = NamedArray(zeros(map(length, v.axes)), v.axes)
-                arrayOut[is_valid.(inputs.model, v).inputs.data] .= value.(Array(v)[is_valid.(inputs.model, v).inputs.data])
-                arrayOut[.!is_valid.(inputs.model, v).inputs.data] .= NaN
+                arrayOut[is_valid.(inputs.model, v).data] .= value.(Array(v)[is_valid.(inputs.model, v).data])
+                arrayOut[.!is_valid.(inputs.model, v).data] .= NaN
                 arrayOut
             end for (k, v) in object_dictionary(inputs.model)
             if v isa AbstractArray{VariableRef}
