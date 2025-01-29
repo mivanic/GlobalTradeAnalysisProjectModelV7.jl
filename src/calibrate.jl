@@ -102,7 +102,7 @@ function calibrate(; start_data, data, sets=sets, parameters, fixed, max_iter=10
     fixed["vdpp"] = NamedArray(falses(size(data["vdpp"])), names(data["vdpp"]))
     fixed["vdpp"][1, 1] = true
 
-    mod = model_struc(calibrate_start, sets, parameters, fixed, nothing)
+    mod = model_struct(calibrate_start, sets, parameters, fixed, nothing)
     @time begin
         solve_model!(mod; max_iter=max_iter, constr_viol_tol=constr_viol_tol)
     end
