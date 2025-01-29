@@ -1,11 +1,11 @@
 function build_model!(mc;  max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
 
         # Structural parameters (some CES/CET options are not happening)
-        δ_evfp = !isnan.(mc.data["α_qfe"])
-        δ_maks = !isnan.(mc.data["α_qca"])
-        δ_vtwr = !isnan.(mc.data["α_qtmfsd"])
+        δ_evfp = .!isnan.(mc.data["α_qfe"])
+        δ_maks = .!isnan.(mc.data["α_qca"])
+        δ_vtwr = .!isnan.(mc.data["α_qtmfsd"])
         δ_vtwr_sum = NamedArray(.!mapslices(all, isnan.(mc.data["α_qtmfsd"]), dims=1)[1, :, :, :], names(mc.data["vtwr"])[[2, 3, 4]])
-        δ_qxs = !isnan.(mc.data["α_qxs"])
+        δ_qxs = .!isnan.(mc.data["α_qxs"])
 
         # Read  sets
         (; reg, comm, marg, acts, endw, endwc, endws, endwm, endwms, endwf) = NamedTuple(Dict(Symbol(k) => mc.sets[k] for k ∈ keys(mc.sets)))
