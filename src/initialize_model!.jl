@@ -17,10 +17,10 @@ function initialize_model!(mc)
     end
     
     # Fix fixed values and delete missing ones
-    for fv ∈ keys(fixed)
+    for fv ∈ keys(mc.fixed)
         println(fv)
-        if size(fixed[fv]) == ()
-            if fixed[fv] && is_valid(mc.model, mc.model[Symbol(fv)])
+        if size(mc.fixed[fv]) == ()
+            if mc.fixed[fv] && is_valid(mc.model, mc.model[Symbol(fv)])
                 if isnan(mc.data[fv])
                     if is_valid(mc.model, mc.model[Symbol(fv)])
                         delete(mc.model, mc.model[Symbol(fv)])
@@ -30,8 +30,8 @@ function initialize_model!(mc)
                 end
             end
         else
-            for fvi ∈ CartesianIndices(fixed[fv])
-                if fixed[fv][fvi] && is_valid(mc.model, mc.model[Symbol(fv)][fvi])
+            for fvi ∈ CartesianIndices(mc.fixed[fv])
+                if mc.fixed[fv][fvi] && is_valid(mc.model, mc.model[Symbol(fv)][fvi])
                     if isnan(mc.data[fv][fvi]) 
                         println(fvi)
                         if is_valid(mc.model, mc.model[Symbol(fv)][fvi]) 
