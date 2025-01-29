@@ -1,22 +1,22 @@
-function solve_model!(inputs; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
-    # sets, data, parameters, fixed, model
-    if inputs.model === nothing
+function solve_model(; sets, data, parameters, fixed, max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, model=nothing)
+
+    if model === nothing
 
         # Structural parameters (some CES/CET options are not happening)
-        δ_evfp = inputs.data["evfp"] .> 1e-6
-        δ_maks = inputs.data["maks"] .> 1e-6
-        δ_vtwr = inputs.data["vtwr"] .> 1e-6
-        δ_vtwr_sum = NamedArray(mapslices(sum, inputs.data["vtwr"], dims=1)[1, :, :, :] .> 1e-6, names(inputs.data["vtwr"])[[2, 3, 4]])
-        δ_qxs = inputs.data["vcif"] .> 1e-6
+        δ_evfp = data["evfp"] .> 1e-6
+        δ_maks = data["maks"] .> 1e-6
+        δ_vtwr = data["vtwr"] .> 1e-6
+        δ_vtwr_sum = NamedArray(mapslices(sum, data["vtwr"], dims=1)[1, :, :, :] .> 1e-6, names(data["vtwr"])[[2, 3, 4]])
+        δ_qxs = data["vcif"] .> 1e-6
 
         # Read  sets
-        (; reg, comm, marg, acts, endw, endwc, endws, endwm, endwms, endwf) = NamedTuple(Dict(Symbol(k) => inputs.sets[k] for k ∈ keys(inputs.sets)))
+        (; reg, comm, marg, acts, endw, endwc, endws, endwm, endwms, endwf) = NamedTuple(Dict(Symbol(k) => sets[k] for k ∈ keys(sets)))
 
         # Read hard parameters
-        (; endowflag, esubt, esubc, esubva, esubd, etraq, esubq, subpar, incpar, etrae, esubg, esubm, esubs) = NamedTuple(Dict(Symbol(k) => inputs.parameters[k] for k ∈ keys(inputs.parameters)))
+        (; endowflag, esubt, esubc, esubva, esubd, etraq, esubq, subpar, incpar, etrae, esubg, esubm, esubs) = NamedTuple(Dict(Symbol(k) => parameters[k] for k ∈ keys(parameters)))
 
         # Set up the model
-        inputs.model = JuMP.Model(Ipopt.Optimizer)
+        model = JuMP.Model(Ipopt.Optimizer)
 
         # Set up the general constraints
         p_min = 1e-8
@@ -29,7 +29,7 @@ function solve_model!(inputs; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-1
         t_max = 1e2
 
         # All variables used in the model
-        @variables(inputs.model,
+        @variables(model,
             begin
                 # Population
                 q_min <= pop[reg] <= q_max
@@ -251,43 +251,43 @@ function solve_model!(inputs; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-1
 
         # Remove structurally missing variables
         # Remove qfe, qes, pfe, peb, α_qes2, α_qfe, cevos, cevfp if there is no use of the factor
-        delete.(inputs.model, Array(qfe)[.!δ_evfp])
-        delete.(inputs.model, Array(qes)[.!δ_evfp])
-        delete.(inputs.model, Array(pes)[.!δ_evfp])
-        delete.(inputs.model, Array(pfe)[.!δ_evfp])
-        delete.(inputs.model, Array(peb)[.!δ_evfp])
-        delete.(inputs.model, Array(α_qes2[endws, :, :])[.!δ_evfp[endws, :, :]])
-        delete.(inputs.model, Array(α_qfe)[.!δ_evfp])
-        delete.(inputs.model, Array(evos)[.!δ_evfp])
-        delete.(inputs.model, Array(evfp)[.!δ_evfp])
-        delete.(inputs.model, Array(σ_vff)[.!δ_evfp])
+        delete.(model, Array(qfe)[.!δ_evfp])
+        delete.(model, Array(qes)[.!δ_evfp])
+        delete.(model, Array(pes)[.!δ_evfp])
+        delete.(model, Array(pfe)[.!δ_evfp])
+        delete.(model, Array(peb)[.!δ_evfp])
+        delete.(model, Array(α_qes2[endws, :, :])[.!δ_evfp[endws, :, :]])
+        delete.(model, Array(α_qfe)[.!δ_evfp])
+        delete.(model, Array(evos)[.!δ_evfp])
+        delete.(model, Array(evfp)[.!δ_evfp])
+        delete.(model, Array(σ_vff)[.!δ_evfp])
 
         # Remove maks when there is no output produced
-        delete.(inputs.model, Array(maks)[.!δ_maks])
-        delete.(inputs.model, Array(ps)[.!δ_maks])
-        delete.(inputs.model, Array(qca)[.!δ_maks])
-        delete.(inputs.model, Array(pca)[.!δ_maks])
-        delete.(inputs.model, Array(α_qca)[.!δ_maks])
+        delete.(model, Array(maks)[.!δ_maks])
+        delete.(model, Array(ps)[.!δ_maks])
+        delete.(model, Array(qca)[.!δ_maks])
+        delete.(model, Array(pca)[.!δ_maks])
+        delete.(model, Array(α_qca)[.!δ_maks])
 
         # Remove trade when no trade is allowed
-        delete.(inputs.model, Array(α_qxs)[.!δ_qxs])
-        delete.(inputs.model, Array(qxs)[.!δ_qxs])
-        delete.(inputs.model, Array(pmds)[.!δ_qxs])
-        delete.(inputs.model, Array(pcif)[.!δ_qxs])
-        delete.(inputs.model, Array(pfob)[.!δ_qxs])
-        delete.(inputs.model, Array(ptrans)[.!δ_qxs.||.!δ_vtwr_sum])
-        delete.(inputs.model, Array(vcif)[.!δ_qxs])
-        delete.(inputs.model, Array(vfob)[.!δ_qxs])
-        delete.(inputs.model, Array(σ_qxs)[.!δ_qxs])
+        delete.(model, Array(α_qxs)[.!δ_qxs])
+        delete.(model, Array(qxs)[.!δ_qxs])
+        delete.(model, Array(pmds)[.!δ_qxs])
+        delete.(model, Array(pcif)[.!δ_qxs])
+        delete.(model, Array(pfob)[.!δ_qxs])
+        delete.(model, Array(ptrans)[.!δ_qxs.||.!δ_vtwr_sum])
+        delete.(model, Array(vcif)[.!δ_qxs])
+        delete.(model, Array(vfob)[.!δ_qxs])
+        delete.(model, Array(σ_qxs)[.!δ_qxs])
 
         # Remove margins when no margins are allowed
-        delete.(inputs.model, Array(qtmfsd)[.!δ_vtwr])
-        delete.(inputs.model, Array(σ_vtwr)[.!δ_vtwr])
-        delete.(inputs.model, Array(α_qtmfsd)[.!δ_vtwr])
-        delete.(inputs.model, Array(vtwr)[.!δ_vtwr])
+        delete.(model, Array(qtmfsd)[.!δ_vtwr])
+        delete.(model, Array(σ_vtwr)[.!δ_vtwr])
+        delete.(model, Array(α_qtmfsd)[.!δ_vtwr])
+        delete.(model, Array(vtwr)[.!δ_vtwr])
 
         # All model equations
-        @constraints(inputs.model,
+        @constraints(model,
             begin
                 # Firms (top nest)
                 e_qintva[a=acts, r=reg], log.([qint[a, r], qva[a, r]]) .== log.(ces(qo[a, r], [pint[a, r], pva[a, r]], α_qintva[:, a, r], esubt[a, r], γ_qintva[a, r]))
@@ -473,69 +473,69 @@ function solve_model!(inputs; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-1
         # Remove equations on structural grounds
 
         # Factors not used
-        delete.(inputs.model, Array(cevos)[.!δ_evfp])
-        delete.(inputs.model, Array(cevfp)[.!δ_evfp])
-        delete.(inputs.model, Array(e_pfe)[.!δ_evfp])
-        delete.(inputs.model, Array(e_peb)[.!δ_evfp])
-        delete.(inputs.model, Array(e_pes)[.!δ_evfp])
-        delete.(inputs.model, Array(e_qes1)[.!δ_evfp[endwm, :, :]])
-        delete.(inputs.model, Array(e_qes3)[.!δ_evfp[endwf, :, :]])
-        delete.(inputs.model, Array(e_σ_vff)[.!δ_evfp])
+        delete.(model, Array(cevos)[.!δ_evfp])
+        delete.(model, Array(cevfp)[.!δ_evfp])
+        delete.(model, Array(e_pfe)[.!δ_evfp])
+        delete.(model, Array(e_peb)[.!δ_evfp])
+        delete.(model, Array(e_pes)[.!δ_evfp])
+        delete.(model, Array(e_qes1)[.!δ_evfp[endwm, :, :]])
+        delete.(model, Array(e_qes3)[.!δ_evfp[endwf, :, :]])
+        delete.(model, Array(e_σ_vff)[.!δ_evfp])
 
         # Outputs not produced
-        delete.(inputs.model, Array(cmaks)[.!δ_maks])
-        delete.(inputs.model, Array(e_ps)[.!δ_maks])
+        delete.(model, Array(cmaks)[.!δ_maks])
+        delete.(model, Array(e_ps)[.!δ_maks])
 
         # Trade not allowed
-        delete.(inputs.model, Array(e_pmds)[.!δ_qxs])
-        delete.(inputs.model, Array(e_pcif)[.!δ_qxs])
-        delete.(inputs.model, Array(e_pfob)[.!δ_qxs])
-        delete.(inputs.model, Array(e_ptrans)[.!δ_qxs])
-        delete.(inputs.model, Array(cvcif)[.!δ_qxs])
-        delete.(inputs.model, Array(cvfob)[.!δ_qxs])
-        delete.(inputs.model, Array(e_σ_qxs)[.!δ_qxs])
+        delete.(model, Array(e_pmds)[.!δ_qxs])
+        delete.(model, Array(e_pcif)[.!δ_qxs])
+        delete.(model, Array(e_pfob)[.!δ_qxs])
+        delete.(model, Array(e_ptrans)[.!δ_qxs])
+        delete.(model, Array(cvcif)[.!δ_qxs])
+        delete.(model, Array(cvfob)[.!δ_qxs])
+        delete.(model, Array(e_σ_qxs)[.!δ_qxs])
 
 
         # Margins not allowed
 
-        delete.(inputs.model, Array(e_qtmfsd)[.!δ_vtwr])
-        delete.(inputs.model, Array(e_σ_vtwr)[.!δ_vtwr])
-        delete.(inputs.model, Array(e_ptrans)[δ_qxs.&&.!δ_vtwr_sum])
+        delete.(model, Array(e_qtmfsd)[.!δ_vtwr])
+        delete.(model, Array(e_σ_vtwr)[.!δ_vtwr])
+        delete.(model, Array(e_ptrans)[δ_qxs.&&.!δ_vtwr_sum])
 
-        free_variables = filter((x) -> is_fixed.(x) == false, JuMP.all_variables(inputs.model))
+        free_variables = filter((x) -> is_fixed.(x) == false, JuMP.all_variables(model))
         for v ∈ free_variables
             set_start_value.(v, 1.01)
         end
 
 
         # Set starting values
-        for k in keys(inputs.data)
-            if Symbol(k) ∈ keys(object_dictionary(inputs.model))
-                if inputs.data[k] isa NamedArray
-                    set_start_value.(inputs.model[Symbol(k)], Array(inputs.data[k]))
+        for k in keys(data)
+            if Symbol(k) ∈ keys(object_dictionary(model))
+                if data[k] isa NamedArray
+                    set_start_value.(model[Symbol(k)], Array(data[k]))
                 else
-                    set_start_value.(inputs.model[Symbol(k)], inputs.data[k])
+                    set_start_value.(model[Symbol(k)], data[k])
                 end
             end
         end
 
         # Fix fixed values and delete missing ones
-        for fv ∈ keys(inputs.fixed)
-            if size(inputs.fixed[fv]) == ()
-                if inputs.fixed[fv] && is_valid(inputs.model, inputs.model[Symbol(fv)])
-                    if isnan(inputs.data[fv])
-                        delete(inputs.model, inputs.model[Symbol(fv)])
+        for fv ∈ keys(fixed)
+            if size(fixed[fv]) == ()
+                if fixed[fv] && is_valid(model, model[Symbol(fv)])
+                    if isnan(data[fv])
+                        delete(model, model[Symbol(fv)])
                     else
-                        fix(inputs.model[Symbol(fv)], inputs.data[fv]; force=true)
+                        fix(model[Symbol(fv)], data[fv]; force=true)
                     end
                 end
             else
-                for fvi ∈ CartesianIndices(inputs.fixed[fv])
-                    if inputs.fixed[fv][fvi] && is_valid(inputs.model, inputs.model[Symbol(fv)][fvi])
-                        if isnan(inputs.data[fv][fvi])
-                            delete(inputs.model, inputs.model[Symbol(fv)][fvi])
+                for fvi ∈ CartesianIndices(fixed[fv])
+                    if fixed[fv][fvi] && is_valid(model, model[Symbol(fv)][fvi])
+                        if isnan(data[fv][fvi])
+                            delete(model, model[Symbol(fv)][fvi])
                         else
-                            fix(inputs.model[Symbol(fv)][fvi], inputs.data[fv][fvi]; force=true)
+                            fix(model[Symbol(fv)][fvi], data[fv][fvi]; force=true)
                         end
                     end
                 end
@@ -544,19 +544,19 @@ function solve_model!(inputs; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-1
     else
 
         # If we preloaded model, we only fix valid values and reset starting values
-
-        for fv ∈ keys(inputs.fixed)
-            if size(inputs.fixed[fv]) == ()
-                if inputs.fixed[fv] && is_valid(inputs.model, inputs.model[Symbol(fv)])
-                    if !isnan(inputs.data[fv])
-                        fix(inputs.model[Symbol(fv)], inputs.data[fv]; force=true)
+        
+        for fv ∈ keys(fixed)
+            if size(fixed[fv]) == ()
+                if fixed[fv] && is_valid(model, model[Symbol(fv)])
+                    if !isnan(data[fv])
+                        fix(model[Symbol(fv)], data[fv]; force=true)
                     end
                 end
             else
-                for fvi ∈ CartesianIndices(inputs.fixed[fv])
-                    if inputs.fixed[fv][fvi] && is_valid(inputs.model, inputs.model[Symbol(fv)][fvi])
-                        if !isnan(inputs.data[fv][fvi])
-                            fix(inputs.model[Symbol(fv)][fvi], inputs.data[fv][fvi]; force=true)
+                for fvi ∈ CartesianIndices(fixed[fv])
+                    if fixed[fv][fvi] && is_valid(model, model[Symbol(fv)][fvi])
+                        if !isnan(data[fv][fvi])
+                            fix(model[Symbol(fv)][fvi], data[fv][fvi]; force=true)
                         end
                     end
                 end
@@ -564,18 +564,18 @@ function solve_model!(inputs; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-1
         end
 
 
-        for fv ∈ keys(inputs.data)
-            if size(inputs.data[fv]) == ()
-                if is_valid(inputs.model, inputs.model[Symbol(fv)])
-                    if !isnan(inputs.data[fv])
-                        set_start_value(inputs.model[Symbol(fv)], inputs.data[fv])
+        for fv ∈ keys(data)
+            if size(data[fv]) == ()
+                if is_valid(model, model[Symbol(fv)])
+                    if !isnan(data[fv])
+                        set_start_value(model[Symbol(fv)], data[fv])
                     end
                 end
             else
-                for fvi ∈ CartesianIndices(inputs.data[fv])
-                    if is_valid(inputs.model, inputs.model[Symbol(fv)][fvi])
-                        if !isnan(inputs.data[fv][fvi])
-                            set_start_value(inputs.model[Symbol(fv)][fvi], inputs.data[fv][fvi])
+                for fvi ∈ CartesianIndices(data[fv])
+                    if is_valid(model, model[Symbol(fv)][fvi])
+                        if !isnan(data[fv][fvi])
+                            set_start_value(model[Symbol(fv)][fvi], data[fv][fvi])
                         end
                     end
                 end
@@ -583,38 +583,39 @@ function solve_model!(inputs; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-1
         end
     end
 
-    set_attribute(inputs.model, "max_iter", max_iter)
-    set_attribute(inputs.model, "constr_viol_tol", constr_viol_tol)
-    set_attribute(inputs.model, "bound_push", bound_push)
+    set_attribute(model, "max_iter", max_iter)
+    set_attribute(model, "constr_viol_tol", constr_viol_tol)
+    set_attribute(model, "bound_push", bound_push)
 
     # # Summary of constraints and free variables
-    constraints = all_constraints(inputs.model; include_variable_in_set_constraints=false)
-    free_variables = filter((x) -> is_fixed.(x) == false, all_variables(inputs.model))
+    constraints = all_constraints(model; include_variable_in_set_constraints=false)
+    free_variables = filter((x) -> is_fixed.(x) == false, all_variables(model))
 
     # Solve
-    optimize!(inputs.model)
+    optimize!(model)
 
     # Save results
     results = merge(Dict(
             String(k) => begin
                 arrayOut = NamedArray(zeros(map(length, v.axes)), v.axes)
-                arrayOut[is_valid.(inputs.model, v).inputs.data] .= value.(Array(v)[is_valid.(inputs.model, v).inputs.data])
-                arrayOut[.!is_valid.(inputs.model, v).inputs.data] .= NaN
+                arrayOut[is_valid.(model, v).data] .= value.(Array(v)[is_valid.(model, v).data])
+                arrayOut[.!is_valid.(model, v).data] .= NaN
                 arrayOut
-            end for (k, v) in object_dictionary(inputs.model)
+            end for (k, v) in object_dictionary(model)
             if v isa AbstractArray{VariableRef}
         ), Dict(
             String(k) => begin
-                (is_valid(inputs.model, v) ? value.(v) : NaN)
-            end for (k, v) in object_dictionary(inputs.model)
+                (is_valid(model, v) ? value.(v) : NaN)
+            end for (k, v) in object_dictionary(model)
             if v isa VariableRef
         ))
 
-    inputs.data = merge(inputs.data, Dict(k => results[k] for k ∈ setdiff(keys(results), keys(inputs.parameters))))
-
     return (
+        sets=sets,
+        data=merge(data, Dict(k => results[k] for k ∈ setdiff(keys(results), keys(parameters)))),
+        parameters=merge(parameters, Dict(k => results[k] for k ∈ keys(results) ∩ keys(parameters))),
         constraints=constraints,
         free_variables=free_variables,
-        all_variables=all_variables(inputs.model)
-    )
+        all_variables=all_variables(model),
+        model=model)
 end
