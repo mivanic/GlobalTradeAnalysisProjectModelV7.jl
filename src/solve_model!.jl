@@ -583,16 +583,16 @@ function solve_model!(inputs; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-1
         end
     end
 
-    set_attribute(inputs.model, "max_iter", max_iter)
-    set_attribute(inputs.model, "constr_viol_tol", constr_viol_tol)
-    set_attribute(inputs.model, "bound_push", bound_push)
+    # set_attribute(inputs.model, "max_iter", max_iter)
+    # set_attribute(inputs.model, "constr_viol_tol", constr_viol_tol)
+    # set_attribute(inputs.model, "bound_push", bound_push)
 
-    # # Summary of constraints and free variables
-    constraints = all_constraints(inputs.model; include_variable_in_set_constraints=false)
-    free_variables = filter((x) -> is_fixed.(x) == false, all_variables(inputs.model))
+    # # # Summary of constraints and free variables
+    # constraints = all_constraints(inputs.model; include_variable_in_set_constraints=false)
+    # free_variables = filter((x) -> is_fixed.(x) == false, all_variables(inputs.model))
 
     # Solve
-    optimize!(inputs.model)
+    #optimize!(inputs.model)
 
     # Save results
     results = merge(Dict(
@@ -612,9 +612,11 @@ function solve_model!(inputs; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-1
 
     inputs.data = merge(inputs.data, Dict(k => results[k] for k ∈ setdiff(keys(results), keys(inputs.parameters))))
 
-    return (
-        constraints=constraints,
-        free_variables=free_variables,
-        all_variables=all_variables(inputs.model)
-    )
+    return
+
+    # return (
+    #     constraints=constraints,
+    #     free_variables=free_variables,
+    #     all_variables=all_variables(inputs.model)
+    # )
 end
