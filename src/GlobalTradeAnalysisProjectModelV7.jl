@@ -6,7 +6,7 @@ using NamedArrays, Ipopt, JuMP, JLD2
 import ComputableGeneralEquilibriumHelpers: cde, ces
 
 # A container of all data for a model
-mutable struct model_cointainer
+mutable struct model_container
     model
     data
     parameters
