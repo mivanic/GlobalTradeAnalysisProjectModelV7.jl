@@ -1,9 +1,18 @@
 module GlobalTradeAnalysisProjectModelV7
 
-export generate_starting_values, get_sample_data, solve_model, calculate_ev, calibrate, calculate_gdp, aggregate_data, aggregate_data_legacy
+export generate_starting_values, get_sample_data, solve_model, calculate_ev, calibrate, calculate_gdp, aggregate_data, aggregate_data_legacy, model_container, build_model!, initialize_model!, extract_model!
 
 using NamedArrays, Ipopt, JuMP, JLD2
 import ComputableGeneralEquilibriumHelpers: cde, ces
+
+# A container of all data for a model
+mutable struct model_cointainer
+    model
+    data
+    parameters
+    sets
+    fixed
+end
 
 include("./helpers/aggComb.jl")
 include("./helpers/agg.jl")
@@ -30,5 +39,10 @@ include("./generate_starting_values.jl")
 
 # Get sample data
 include("./get_sample_data.jl")
+
+
+include("./build_model!.jl")
+include("./extract_model!.jl")
+include("./initialize_model!.jl")
 
 end
