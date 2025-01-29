@@ -1,8 +1,8 @@
 function build_model!(mc;  max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
 
         # Structural parameters (some CES/CET options are not happening)
-        δ_evfp = mc.data["α_qfe"] .= 0
-        δ_maks = mc.data["α_qca"] .= 0
+        δ_evfp = mc.data["α_qfe"] .!= 0
+        δ_maks = mc.data["α_qca"] .!= 0
         δ_vtwr = mc.data["α_qtmfsd"] .!=0
         δ_vtwr_sum = NamedArray(mapslices(sum, mc.data["α_qtmfsd"], dims=1)[1, :, :, :] .!= 0, names(mc.data["vtwr"])[[2, 3, 4]])
         δ_qxs = mc.data["α_qxs"] .!= 0
