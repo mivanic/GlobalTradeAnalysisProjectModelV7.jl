@@ -102,10 +102,11 @@ function calibrate(; start_data, data, sets=sets, parameters, fixed, max_iter=10
     fixed["vdpp"] = NamedArray(falses(size(data["vdpp"])), names(data["vdpp"]))
     fixed["vdpp"][1, 1] = true
 
+    mod = model_struc(calibrate_start, sets, parameters, fixed, nothing)
     @time begin
-        (; data) = solve_model(sets=sets, data=calibrate_start, parameters=parameters, fixed=fixed, max_iter=max_iter, constr_viol_tol=constr_viol_tol)
+        solve_model!(mod; max_iter=max_iter, constr_viol_tol=constr_viol_tol)
     end
 
-    calibrated_data = deepcopy(data)
+    calibrated_data = deepcopy(mod.data)
     return calibrated_data
 end
