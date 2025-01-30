@@ -31,7 +31,6 @@ function initialize_model!(mc)
             for fvi ∈ CartesianIndices(mc.fixed[fv])
                 if mc.fixed[fv][fvi] && is_valid(mc.model, mc.model[Symbol(fv)][fvi])
                     if isnan(mc.data[fv][fvi]) 
-                        println(fvi)
                         if is_valid(mc.model, mc.model[Symbol(fv)][fvi]) 
                             delete(mc.model, mc.model[Symbol(fv)][fvi])
                         end
