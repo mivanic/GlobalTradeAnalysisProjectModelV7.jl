@@ -2,7 +2,6 @@ function initialize_model!(mc)
 
     # Set starting values
     for k in keys(mc.data)
-        println(k)
         if Symbol(k) ∈ keys(object_dictionary(mc.model))
             if mc.data[k] isa NamedArray
                 set_start_value.(mc.model[Symbol(k)], Array(mc.data[k]))
@@ -18,7 +17,6 @@ function initialize_model!(mc)
     
     # Fix fixed values and delete missing ones
     for fv ∈ keys(mc.fixed)
-        println(fv)
         if size(mc.fixed[fv]) == ()
             if mc.fixed[fv] && is_valid(mc.model, mc.model[Symbol(fv)])
                 if isnan(mc.data[fv])

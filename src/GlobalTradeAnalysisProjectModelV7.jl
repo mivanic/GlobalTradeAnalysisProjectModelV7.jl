@@ -44,5 +44,6 @@ include("./get_sample_data.jl")
 include("./build_model!.jl")
 include("./extract_model!.jl")
 include("./initialize_model!.jl")
+include("./solve_model!.jl")
 
 end
