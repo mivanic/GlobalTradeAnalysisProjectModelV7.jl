@@ -1,3 +1,3 @@
-function solve_model(mc)
+function solve_model!(mc)
     optimize!(mc.model)
 end
