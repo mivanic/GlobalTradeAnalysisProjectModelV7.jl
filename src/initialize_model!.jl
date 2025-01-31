@@ -1,7 +1,8 @@
-function initialize_model!(; model_container)
+function initialize_model!(model_container)
 
-    free_variables = filter(f->!is_fixed(f), all_variables(model_container.model))
-    set_start_value.(free_variables,1.01)
+    free_variables = filter(f -> !is_fixed(f), all_variables(model_container.model))
+    set_start_value.(free_variables, 1.01)
+
 
     # First set the starting values and report if anything is missing
     for k ∈ names(object_dictionary(model_container.model))
@@ -23,6 +24,16 @@ function initialize_model!(; model_container)
     end
     # Second unfix all variables 
     unfix.(JuMP.all_variables(model_container.model)[is_fixed.(JuMP.all_variables(model_container.model))])
+
+    # Set lower bounds
+    for (k,v) ∈ model_container.lower
+        set_lower_bound.(model_container[Symbol(k)], v)
+    end
+
+    for (k,v) ∈ model_container.upper
+        set_lower_bound.(model_container[Symbol(k)], v)
+    end
+
     # Third fix variables that need to be fixed
     for fv ∈ keys(model_container.fixed)
         if size(model_container.fixed[fv]) == ()
@@ -36,7 +47,7 @@ function initialize_model!(; model_container)
         else
             for fvi ∈ CartesianIndices(model_container.fixed[fv])
                 if model_container.fixed[fv][fvi] && is_valid(model_container.model, model_container.model[Symbol(fv)][fvi])
-                    if !isnan( model_container.data[fv][fvi]) 
+                    if !isnan(model_container.data[fv][fvi])
                         fix(model_container.model[Symbol(fv)][fvi], model_container.data[fv][fvi]; force=true)
                     else
                         fix(model_container.model[Symbol(fv)][fvi], 0; force=true)

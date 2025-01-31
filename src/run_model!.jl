@@ -7,15 +7,15 @@ are specified as exogenous (model_container.fixed), (3) solve the model, (4) loa
 variable values to the data (model_container.data)
 
 """
-function run_model!(; model_container, max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
+function run_model!( model_container; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
 
     # initialize the model
-    initialize_model!(; model_container=model_container)
+    initialize_model!(model_container)
 
     # solve_model
-    solve_model!(; model_container=model_container, max_iter=max_iter, constr_viol_tol=constr_viol_tol, bound_push=bound_push)
+    solve_model!(model_container; max_iter=max_iter, constr_viol_tol=constr_viol_tol, bound_push=bound_push)
 
     # Exttract values
-    extract_model!(; model_container=model_container)
+    extract_model!(model_container)
 
 end

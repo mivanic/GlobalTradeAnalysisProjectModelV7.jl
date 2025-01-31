@@ -12,6 +12,8 @@ mutable struct model_container_struct
     parameters
     sets
     fixed
+    lower
+    upper
 end
 
 include("./helpers/aggComb.jl")
