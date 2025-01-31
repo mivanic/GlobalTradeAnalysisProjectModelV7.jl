@@ -111,5 +111,5 @@ function generate_calibration_inputs(; model_container, start_data, max_iter=100
     #build_model!(mc)
     #run_model!(model_container=mc, max_iter=max_iter, constr_viol_tol=constr_viol_tol)
 
-    return (fixed_calibration=fixed, data_calibration=deepcopy(mc.data))
+    return (fixed_calibration=deepcopy(fixed), data_calibration=deepcopy(calibrate_start))
 end
