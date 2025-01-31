@@ -5,7 +5,7 @@ function generate_calibration_inputs(; model_container, start_data, max_iter=100
     calibrate_start = deepcopy(model_container.data)
     data = deepcopy(model_container.data)
     sets = deepcopy(model_container.sets)
-    
+
     # CAL-I
     fixed["α_qxs"] .= false
     fixed["σ_qxs"] = NamedArray(trues(size(data["σ_qxs"])), names(data["σ_qxs"]))
@@ -105,10 +105,8 @@ function generate_calibration_inputs(; model_container, start_data, max_iter=100
     fixed["vdpp"][1, 1] = true
 
 
-    # Copy model
-    model = deepcopy(model_container.model)
-
-    mc = model_container(model, calibrate_start, parameters, sets, fixed)
+    mc = model_container(JuMP.Model(Ipopt.Optimizer), calibrate_start, parameters, sets, fixed)
+    build_model!(mc)    
 
     run_model!(model_container=mc, max_iter=max_iter, constr_viol_tol=constr_viol_tol)
 
