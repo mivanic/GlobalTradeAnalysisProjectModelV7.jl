@@ -4,6 +4,8 @@ function generate_calibration_inputs(; model_container, start_data, max_iter=100
     fixed = deepcopy(model_container.fixed)
     calibrate_start = deepcopy(model_container.data)
     data = deepcopy(model_container.data)
+    sets = deepcopy(model_container.sets)
+    
     # CAL-I
     fixed["α_qxs"] .= false
     fixed["σ_qxs"] = NamedArray(trues(size(data["σ_qxs"])), names(data["σ_qxs"]))
