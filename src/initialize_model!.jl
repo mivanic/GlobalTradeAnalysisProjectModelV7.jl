@@ -25,14 +25,30 @@ function initialize_model!(model_container)
     # Second unfix all variables 
     unfix.(JuMP.all_variables(model_container.model)[is_fixed.(JuMP.all_variables(model_container.model))])
 
-    # Set lower bounds
+    # Set bounds bounds
     for (k,v) ∈ model_container.lower
-        set_lower_bound.(model_container.model[Symbol(k)], v)
+        if Symbol(k) ∈ names(object_dictionary(model_container.model))
+            if  model_container.model[Symbol(k)] isa VariableRef
+                if is_valid(model_container.model, model_container.model[Symbol(k)])
+                    set_lower_bound.(model_container.model[Symbol(k)], v)
+                end
+            elseif typeof(Array(model_container.model[Symbol(k)])) ∈ [Array{VariableRef,1}, Array{VariableRef,2}, Array{VariableRef,3}, Array{VariableRef,4}, Array{VariableRef,5}]
+                set_lower_bound.(Array(model_container.model[Symbol(k)])[Array(is_valid.(model_container.model, model_container.model[Symbol(k)]))], v)
+            end
+        end
     end
-
     for (k,v) ∈ model_container.upper
-        set_lower_bound.(model_container.model[Symbol(k)], v)
+        if Symbol(k) ∈ names(object_dictionary(model_container.model))
+            if  model_container.model[Symbol(k)] isa VariableRef
+                if is_valid(model_container.model, model_container.model[Symbol(k)])
+                    set_upper_bound.(model_container.model[Symbol(k)], v)
+                end
+            elseif typeof(Array(model_container.model[Symbol(k)])) ∈ [Array{VariableRef,1}, Array{VariableRef,2}, Array{VariableRef,3}, Array{VariableRef,4}, Array{VariableRef,5}]
+                set_upper_bound.(Array(model_container.model[Symbol(k)])[Array(is_valid.(model_container.model, model_container.model[Symbol(k)]))], v)
+            end
+        end
     end
+    
 
     # Third fix variables that need to be fixed
     for fv ∈ keys(model_container.fixed)
