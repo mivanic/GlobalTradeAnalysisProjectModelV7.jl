@@ -1,4 +1,8 @@
 function initialize_model!(; model_container)
+
+    free_variables = filter(f->!is_fixed(f), all_variables(model_container.model))
+    set_start_value.(free_variables,1.01)
+
     # First set the starting values and report if anything is missing
     for k ∈ names(object_dictionary(model_container.model))
         if model_container.model[k] isa VariableRef
