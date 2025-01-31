@@ -1,4 +1,4 @@
-function generate_calibration_inputs(; model_container, start_data, max_iter=100, constr_viol_tol=1e-8)
+function generate_calibration_inputs(model_container, start_data)
 
     # We do not want to mess with user's fixed dictionary
     fixed = deepcopy(model_container.fixed)
