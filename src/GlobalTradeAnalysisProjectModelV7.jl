@@ -46,4 +46,7 @@ include("./extract_model!.jl")
 include("./initialize_model!.jl")
 include("./solve_model!.jl")
 
+include("run_model!.jl")
+include("generate_initial_model.jl")
+include("generate_calibration_inputs.jl")
 end
