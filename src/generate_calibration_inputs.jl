@@ -4,6 +4,7 @@ function generate_calibration_inputs(; model_container, start_data, max_iter=100
     fixed = deepcopy(model_container.fixed)
     calibrate_start = deepcopy(model_container.data)
     data = deepcopy(model_container.data)
+    parameters = deepcopy(model_container.parameters)
     sets = deepcopy(model_container.sets)
 
     # CAL-I
