@@ -107,9 +107,9 @@ function generate_calibration_inputs(; model_container, start_data, max_iter=100
 
 
     mc = model_container_struct(JuMP.Model(Ipopt.Optimizer), calibrate_start, parameters, sets, fixed)
-    build_model!(mc)    
+    build_model!(mc)
 
     run_model!(model_container=mc, max_iter=max_iter, constr_viol_tol=constr_viol_tol)
 
-    return deepcopy(mc.data)
+    return (fixed_calibration=fixed, data_calibration=deepcopy(mc.data))
 end
