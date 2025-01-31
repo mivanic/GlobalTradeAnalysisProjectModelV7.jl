@@ -59,7 +59,7 @@ function generate_starting_values(; hSets, hData, hParameters)
         Dict(k => y_min for k ∈ ["fincome", "y", "yp", "yg"]),
         Dict(k => v_min for k ∈ ["vdfp", "vmfp", "vdpp", "vmpp", "vdgp", "vmgp", "vdip", "vmip", "evfp", "evos", "vfob", "vcif", "vst", "vtwr", "maks", "vkb"]),
         Dict(k => 0 for k ∈ ["uelas", "uepriv"]),
-        Dict(β_qpa => 1e-8),
+        Dict("β_qpa" => 1e-8),
         Dict(k => 0 for k ∈ ["δ", "ρ"])
     )
 
