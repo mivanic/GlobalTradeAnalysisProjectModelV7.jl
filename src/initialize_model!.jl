@@ -27,11 +27,11 @@ function initialize_model!(model_container)
 
     # Set lower bounds
     for (k,v) ∈ model_container.lower
-        set_lower_bound.(model_container[Symbol(k)], v)
+        set_lower_bound.(model_container.model[Symbol(k)], v)
     end
 
     for (k,v) ∈ model_container.upper
-        set_lower_bound.(model_container[Symbol(k)], v)
+        set_lower_bound.(model_container.model[Symbol(k)], v)
     end
 
     # Third fix variables that need to be fixed
