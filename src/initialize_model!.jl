@@ -1,16 +1,16 @@
-function initialize_model!(mc)
+function initialize_model!(; model_container)
     # First set the starting values and report if anything is missing
-    for k ∈ names(object_dictionary(mc.model))
-        if mc.model[k] isa VariableRef
-            if String(k) ∈ names(mc.data)
-                set_start_value(mc.model[k], mc.data[String(k)])
+    for k ∈ names(object_dictionary(model_container.model))
+        if model_container.model[k] isa VariableRef
+            if String(k) ∈ names(model_container.data)
+                set_start_value(model_container.model[k], model_container.data[String(k)])
             else
                 printstyled("Values for $k are not provided in the data\n", color=:yellow)
             end
-        elseif mc.model[k] isa ConstraintRef
-        elseif typeof(Array(mc.model[k])) ∈ [Array{VariableRef,1}, Array{VariableRef,2}, Array{VariableRef,3}, Array{VariableRef,4}, Array{VariableRef,5}]
-            if String(k) ∈ names(mc.data)
-                set_start_value.(Array(mc.model[k])[Array(is_valid.(mc.model, mc.model[k]))], mc.data[String(k)][Array(is_valid.(mc.model, mc.model[k]))])
+        elseif model_container.model[k] isa ConstraintRef
+        elseif typeof(Array(model_container.model[k])) ∈ [Array{VariableRef,1}, Array{VariableRef,2}, Array{VariableRef,3}, Array{VariableRef,4}, Array{VariableRef,5}]
+            if String(k) ∈ names(model_container.data)
+                set_start_value.(Array(model_container.model[k])[Array(is_valid.(model_container.model, model_container.model[k]))], model_container.data[String(k)][Array(is_valid.(model_container.model, model_container.model[k]))])
             else
                 printstyled("Values for $k are not provided in the data\n", color=:yellow)
             end
@@ -18,24 +18,24 @@ function initialize_model!(mc)
         end
     end
     # Second unfix all variables 
-    unfix.(JuMP.all_variables(mc.model)[is_fixed.(JuMP.all_variables(mc.model))])
+    unfix.(JuMP.all_variables(model_container.model)[is_fixed.(JuMP.all_variables(model_container.model))])
     # Third fix variables that need to be fixed
-    for fv ∈ keys(mc.fixed)
-        if size(mc.fixed[fv]) == ()
-            if mc.fixed[fv] && is_valid(mc.model, mc.model[Symbol(fv)])
-                if !isnan(mc.data[fv])
-                    fix(mc.model[Symbol(fv)], mc.data[fv]; force=true)
+    for fv ∈ keys(model_container.fixed)
+        if size(model_container.fixed[fv]) == ()
+            if model_container.fixed[fv] && is_valid(model_container.model, model_container.model[Symbol(fv)])
+                if !isnan(model_container.data[fv])
+                    fix(model_container.model[Symbol(fv)], model_container.data[fv]; force=true)
                 else
-                    fix(mc.model[Symbol(fv)], 0; force=true)
+                    fix(model_container.model[Symbol(fv)], 0; force=true)
                 end
             end
         else
-            for fvi ∈ CartesianIndices(mc.fixed[fv])
-                if mc.fixed[fv][fvi] && is_valid(mc.model, mc.model[Symbol(fv)][fvi])
-                    if !isnan( mc.data[fv][fvi]) 
-                        fix(mc.model[Symbol(fv)][fvi], mc.data[fv][fvi]; force=true)
+            for fvi ∈ CartesianIndices(model_container.fixed[fv])
+                if model_container.fixed[fv][fvi] && is_valid(model_container.model, model_container.model[Symbol(fv)][fvi])
+                    if !isnan( model_container.data[fv][fvi]) 
+                        fix(model_container.model[Symbol(fv)][fvi], model_container.data[fv][fvi]; force=true)
                     else
-                        fix(mc.model[Symbol(fv)][fvi], 0; force=true)
+                        fix(model_container.model[Symbol(fv)][fvi], 0; force=true)
                     end
                 end
             end
