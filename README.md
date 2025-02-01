@@ -91,49 +91,53 @@ endMap["capital"] = "capital"
 
 ```
 
-# Generating starting values
+# Generating initial model
 
 ```
-# Starting data and parameters
-(; sets, parameters, data, fixed) = generate_starting_values(hSets=hSets, hData=hData, hParameters=hParameters)
-start_data = deepcopy(data)
+# Starting model (a container with model, data, parameters, fixed value indicators, lower bounds, upper bounds)
+mc=generate_initial_model(hSets=hSets, hData=hData, hParameters=hParameters)
+
+# Save the initial data because it contains actual values to which we can calibrate later
+start_data = deepcopy(mc.data)
 ```
 
 # Solve the model with the starting (uncalibrated) data  values
 
 ```
-(; data) = model(sets=sets, data=start_data, parameters=parameters, fixed=fixed, max_iter=30, constr_viol_tol = 1e-8)
-solved_data = deepcopy(data)
+run_model!(mc)
 ```
-
 
 # Calibrate the data and parameters
 
 ```
-calibrated_data = calibrate(start_data = start_data, data=solved_data, sets=sets,  parameters=parameters, fixed=fixed)
+# Obtain the closure for calibration (fixed_calibration) and data with target values (start_data)
+(;fixed_calibration, data_calibration)=generate_calibration_inputs(mc, start_data)
+
+# Before calibrating, let's save the standard closure as we will need it for simulations
+fixed_default = deepcopy(mc.fixed)
+
+# Load the model with the calibration data and closure
+mc.data = data_calibration
+mc.fixed = fixed_calibration
+
+# Calibrate
+run_model!(mc)
+
+# Save the calibrate data---this is the starting point for all simulations
+calibrated_data = deepcopy(mc.data)
 ```
 
 
-# Running baseline scenario (the world before the shock)
 
-```
-(; data) = solve_model(sets=sets, data=calibrated_data, parameters=parameters,  fixed=fixed, max_iter = 20)
-
-# Let's save the state of the world before the simulation
-data0 = deepcopy(data)
-```
-
-# Running the scenario (the world after the shock)
+# Running a scenario (increase power of tariff on crops between MENA and EU by 20 percent)
 
 ```
 # Set the tariff on crops from ssafrica to eu to 1.2 (20 percent)
-calibrated_data["tms"]["crops", "mena", "eu"] = 1.2
+mc.data["tms"]["crops", "mena", "eu"] = 1.2
 
 # Run the model
-(; data) = solve_model(sets=sets, data=calibrated_data, parameters=parameters, fixed=fixed, max_iter=20)
+run_model!(mc)
 
-# Save the world after the simulation
-data1 = deepcopy(data)
 ```
 
 # Analyzing the results
@@ -142,7 +146,7 @@ data1 = deepcopy(data)
 
 ```
 # Show the change in exports (percent)
-((data1["qxs"]./data0["qxs"])[:, :, "eu"] .- 1) .* 100
+((mc.data["qxs"]./calibrated_data["qxs"])[:, :, "eu"] .- 1) .* 100
 
 ```
 
@@ -152,7 +156,7 @@ data1 = deepcopy(data)
 ev = calculate_ev(
                     sets=sets, 
                     data0=calibrated_data, 
-                    data1=data, 
+                    data1=mc.data, 
                     parameters=parameters
                   )
 ```
@@ -160,7 +164,7 @@ ev = calculate_ev(
 ## Calculate change in real GDP
 
 ```
-qgdp1 = calculate_gdp(sets =sets, data0=calibrated_data, data1=data)
-qgdp0 = calculate_gdp(sets =sets, data0=calibrated_data, data1=calibrated_data)
+qgdp1 = calculate_gdp(sets =mc.sets, data0=calibrated_data, data1=mc.data)
+qgdp0 = calculate_gdp(sets =mc.sets, data0=calibrated_data, data1=calibrated_data)
 (qgdp1 ./ qgdp1 .- 1) .* 100
 ```
