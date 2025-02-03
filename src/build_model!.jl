@@ -152,6 +152,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             p_min <= pcgdswld <= p_max
             q_min <= walras_sup <= q_max
             q_min <= walras_dem <= q_max
+            p_min <= pfactwld <= p_max
 
             # Capital stocks
             q_min <= kb[reg] <= q_max
@@ -408,6 +409,9 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             e_pcgdswld, log(pcgdswld) == log(sum(pinv .* (qinv .- δ .* kb)) / sum(qinv .- δ .* kb))
             e_walras_sup, log(walras_sup) == log(pcgdswld * globalcgds)
             e_walras_dem, log(walras_dem) == log(sum(psave .* qsave))
+
+            # Pfactwld
+            e_rorg, log(pfactwld * sum(Array(qfe)[δ_evfp])) == log(sum(Array(peb .* qfe)[δ_evfp]))
 
             # Capital accumulation
             #e_kb[r=reg], log(ρ[r] * pinv[r] * kb[r]) == log(sum(qe[endwc, r] .* pe[endwc, r]))

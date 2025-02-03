@@ -77,6 +77,7 @@ function prepare_initial_values(; sets, hData, hParameters)
 
     ppriv = NamedArray(ones(length(reg)), (reg))
     pfactor = NamedArray(ones(length(reg)), (reg))
+    pfactwld = 1
 
 
     return (data = Dict(
@@ -126,7 +127,8 @@ function prepare_initial_values(; sets, hData, hParameters)
         "walras_sup" => walras_sup,
         "walras_dem" => walras_dem,
         "qe" => qe,
-        "pop" => pop
+        "pop" => pop,
+        "pfactwld" => pfactwld
     ))
 
 end
