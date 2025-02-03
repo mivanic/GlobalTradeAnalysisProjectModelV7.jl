@@ -101,7 +101,7 @@ function generate_calibration_inputs(model_container, start_data)
     fixed["σ_ρ"] = NamedArray(trues(size(data["kb"])), names(data["kb"])...)
     calibrate_start["σ_ρ"] = mapslices(sum, start_data["evos"], dims=[1, 2])[1, 1, :] ./ start_data["vkb"]
 
-    fixed["pfactwld"] = false
+    fixed["ppa"] .= false
     fixed["vdpp"] = NamedArray(falses(size(data["vdpp"])), names(data["vdpp"]))
     fixed["vdpp"][1, 1] = true
 

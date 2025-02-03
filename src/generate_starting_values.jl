@@ -23,14 +23,14 @@ function generate_starting_values(; hSets, hData, hParameters)
             else
                 true
             end
-        end for (k) in ["to", "tfe", "tx", "txs", "tm", "tms", "tfd", "tfm", "tpd", "tpm", "tgd", "tgm", "tid", "tim", "tinc", "qesf", "qe", "α_qintva", "γ_qintva", "α_qfa", "γ_qfa", "α_qfe", "γ_qfe", "α_qfdqfm", "γ_qfdqfm", "α_qca", "γ_qca", "α_pca", "γ_pca", "σyp", "σyg", "β_qpa", "α_qpdqpm", "γ_qpdqpm", "α_qga", "γ_qga", "α_qgdqgm", "γ_qgdqgm", "α_qia", "γ_qia", "α_qidqim", "γ_qidqim", "α_qxs", "γ_qxs", "α_qtmfsd", "α_qst", "γ_qst", "α_qes2", "γ_qes2", "α_qinv", "δ", "ρ", "pop"]
+        end for (k) in ["to", "tfe", "tx", "txs", "tm", "tms", "tfd", "tfm", "tpd", "tpm", "tgd", "tgm", "tid", "tim", "tinc", "qesf", "qe", "α_qintva", "γ_qintva", "α_qfa", "γ_qfa", "α_qfe", "γ_qfe", "α_qfdqfm", "γ_qfdqfm", "α_qca", "γ_qca", "α_pca", "γ_pca", "σyp", "σyg", "β_qpa", "α_qpdqpm", "γ_qpdqpm", "α_qga", "γ_qga", "α_qgdqgm", "γ_qgdqgm", "α_qia", "γ_qia", "α_qidqim", "γ_qidqim", "α_qxs", "γ_qxs", "α_qtmfsd", "α_qst", "γ_qst", "α_qes2", "γ_qes2", "α_qinv", "δ", "ρ", "pop","ppa"]
     )
 
-    fixed = merge(Dict("pfactwld"=>true), fixed)
+    fixed = merge(Dict("pfactwld"=>false), fixed)
 
-    #fixed["ppa"][:, :] .= false
+    fixed["ppa"][:, :] .= false
     ## The price of the first commodity in the first region is fixed
-    #fixed["ppa"][comm[1], reg[1]] = true
+    fixed["ppa"][comm[1], reg[1]] = true
 
     q_min = 1e-8
     q_max = 1e+12
