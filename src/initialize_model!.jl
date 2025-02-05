@@ -1,3 +1,6 @@
+"""
+    initialize_model!(model_container)
+"""
 function initialize_model!(model_container)
 
     free_variables = filter(f -> !is_fixed(f), all_variables(model_container.model))

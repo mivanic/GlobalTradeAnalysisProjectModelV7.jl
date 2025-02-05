@@ -1,3 +1,7 @@
+
+"""
+    calculate_gdp(; sets, data0, data1)
+"""
 function calculate_gdp(; sets, data0, data1)
 
     return NamedArray(

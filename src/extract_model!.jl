@@ -1,3 +1,6 @@
+"""
+    extract_model!(model_container)
+"""
 function extract_model!(model_container)
     results = merge(Dict(
             String(k) => begin

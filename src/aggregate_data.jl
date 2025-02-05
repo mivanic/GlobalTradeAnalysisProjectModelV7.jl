@@ -1,3 +1,6 @@
+"""
+        aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)
+"""
 function aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)
 
         marMap = comMap[map(f -> in(f, hSets["marg"]), names(comMap)[1])]
