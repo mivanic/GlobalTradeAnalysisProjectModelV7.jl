@@ -1,6 +1,6 @@
 module GlobalTradeAnalysisProjectModelV7
 
-export generate_starting_values, get_sample_data, solve_model, calculate_ev, calibrate, calculate_gdp, aggregate_data, aggregate_data_legacy, model_container_struct, build_model!, initialize_model!, extract_model!, solve_model!,generate_calibration_inputs, generate_initial_model, run_model!
+export generate_starting_values, get_sample_data, solve_model, calculate_ev, calculate_expenditure, calibrate, calculate_gdp, aggregate_data, aggregate_data_legacy, model_container_struct, build_model!, initialize_model!, extract_model!, solve_model!,generate_calibration_inputs, generate_initial_model, run_model!
 
 using NamedArrays, Ipopt, JuMP, JLD2
 import ComputableGeneralEquilibriumHelpers: cde, ces
@@ -30,6 +30,7 @@ include("./helpers/prepare_initial_calibrated_parameters.jl")
 include("./solve_model.jl")
 include("./calibrate.jl")
 include("./calculate_ev.jl")
+include("./calculate_expenditure.jl")
 include("./calculate_gdp.jl")
 
 # Function that aggregates data on the assumption that the standard GTAP data are provided (based on headers)
