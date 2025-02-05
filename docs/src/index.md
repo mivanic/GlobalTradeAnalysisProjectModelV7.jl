@@ -2,4 +2,6 @@
 
 
 ```@autodocs
+Modules = [GlobalTradeAnalysisProjectModelV7]
+Order   = [:function, :type]
 ```
