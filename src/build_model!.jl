@@ -464,8 +464,8 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             e_σ_vff[e=endw, a=acts, r=reg], σ_vff[e, a, r] * sum(Vector(pfe[:, a, r] .* qfe[:, a, r])[δ_evfp[:, a, r]]) == pfe[e, a, r] .* qfe[e, a, r]
             e_σ_vtwr[m=marg, c=comm, s=reg, d=reg], σ_vtwr[m, c, s, d] * pcif[c, s, d] * qxs[c, s, d] == pt[m] * qtmfsd[m, c, s, d]
             e_σ_qxs[c=comm, s=reg, d=reg], σ_qxs[c, s, d] * sum(Vector(pcif[c, :, d] .* qxs[c, :, d])[δ_qxs[c, :, d]]) == pcif[c, s, d] .* qxs[c, s, d]
-            e_σ_qinv[r=reg], σ_qinv[r] * sum(psave .* qsave) == psave[r] * qsave[r]
-            e_σ_ρ[r=reg], (kb[r] * pinv[r]) * σ_ρ[r] == sum(Array(pes[:, :, r] .* qes[:, :, r])[δ_evfp[:, :, r]])
+            e_σ_qinv[r=reg], σ_qinv[r] == psave[r] * qsave[r] / sum(psave .* qsave)
+            e_σ_ρ[r=reg], log((kb[r] * pinv[r]) * σ_ρ[r]) == log(sum(Array(pes[:, :, r] .* qes[:, :, r])[δ_evfp[:, :, r]]))
         end
     )
 
