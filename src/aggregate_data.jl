@@ -8,8 +8,6 @@ e^{i\\pi} + 1 = 0
 ```
 
 This is all in markdown. You can also use latex in the code blocks.
-
-I forgot to escape my \\. Oops.
 """
 function aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)
 
