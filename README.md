@@ -153,12 +153,12 @@ run_model!(mc)
 ## Calculate equivalent variation
 
 ```
-ev = calculate_ev(
+ev = calculate_expenditure(
                     sets=sets, 
                     data0=calibrated_data, 
                     data1=mc.data, 
                     parameters=parameters
-                  )
+                  ) .- calibrated_data["y"]
 ```
 
 ## Calculate change in real GDP
