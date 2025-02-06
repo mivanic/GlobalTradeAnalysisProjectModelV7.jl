@@ -18,7 +18,7 @@ makedocs(
 
 
 deploydocs(
-    repo = "https://github.com/mitchphillipson/GlobalTradeAnalysisProjectModelV7.jl",
+    repo = "https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7.jl",
     branch = "gh-pages",
     push_preview = true
     #versions = ["stable" => "v^", "v#.#" ],
