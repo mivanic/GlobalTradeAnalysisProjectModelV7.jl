@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 
-[![Stable]([https://img.shields.io/badge/docs-stable-blue.svg)](https://julia-mpsge.github.io/MPSGE.jl/stable](https://mitchphillipson.github.io/GlobalTradeAnalysisProjectModelV7.jl/dev/)/)
+[![Stable]([https://img.shields.io/badge/docs-stable-blue.svg)](https://julia-mpsge.github.io/MPSGE.jl/stable](https://mivanic.github.io/GlobalTradeAnalysisProjectModelV7.jl/dev/)/)
 ## Purpose of the package
 
 The purpose of this package is to allow CGE modelers to run GTAP model version 7 in Julia, from start to finish, i.e. from data aggregation to results.
