@@ -1,3 +1,6 @@
+"""
+    generate_calibration_inputs(model_container, start_data)
+"""
 function generate_calibration_inputs(model_container, start_data)
 
     # We do not want to mess with user's fixed dictionary

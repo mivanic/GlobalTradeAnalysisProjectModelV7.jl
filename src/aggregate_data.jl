@@ -1,3 +1,14 @@
+"""
+        aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)
+
+YOu can type math here ``\\int_0^1\\,x^2\\,dx``. And you can do fancy math
+
+```math
+e^{i\\pi} + 1 = 0
+```
+
+This is all in markdown. You can also use latex in the code blocks.
+"""
 function aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)
 
         marMap = comMap[map(f -> in(f, hSets["marg"]), names(comMap)[1])]

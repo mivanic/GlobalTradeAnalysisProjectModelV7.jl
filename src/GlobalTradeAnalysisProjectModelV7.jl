@@ -5,7 +5,11 @@ export generate_starting_values, get_sample_data, solve_model, calculate_ev, cal
 using NamedArrays, Ipopt, JuMP, JLD2
 import ComputableGeneralEquilibriumHelpers: cde, ces
 
-# A container of all data for a model
+"""
+    mutable struct model_container_struct
+        
+A container of all data for a model
+"""
 mutable struct model_container_struct
     model
     data

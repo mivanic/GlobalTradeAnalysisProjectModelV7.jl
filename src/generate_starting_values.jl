@@ -1,3 +1,8 @@
+"""
+    generate_starting_values(; hSets, hData, hParameters)
+
+Doc string here. It generates sets.
+"""
 function generate_starting_values(; hSets, hData, hParameters)
 
     (sets) = prepare_sets(hSets=hSets, hParameters=hParameters)
