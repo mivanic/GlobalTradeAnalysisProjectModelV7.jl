@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Introduction · GlobalTradeAnalysisProjectModelV7.jl</title><meta name="title" content="Introduction · GlobalTradeAnalysisProjectModelV7.jl"/><meta property="og:title" content="Introduction · GlobalTradeAnalysisProjectModelV7.jl"/><meta property="twitter:title" content="Introduction · GlobalTradeAnalysisProjectModelV7.jl"/><meta name="description" content="Documentation for GlobalTradeAnalysisProjectModelV7.jl."/><meta property="og:description" content="Documentation for GlobalTradeAnalysisProjectModelV7.jl."/><meta property="twitter:description" content="Documentation for GlobalTradeAnalysisProjectModelV7.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href>GlobalTradeAnalysisProjectModelV7.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><span class="tocitem">Introduction</span><ul><li class="is-active"><a class="tocitem" href>Introduction</a><ul class="internal"><li><a class="tocitem" href="#Simple-example"><span>Simple example</span></a></li></ul></li></ul></li><li><span class="tocitem">Functions</span><ul><li><a class="tocitem" href="../functions/">Functions</a></li></ul></li><li><span class="tocitem">Types</span><ul><li><a class="tocitem" href="../types/">Functions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Introduction</a></li><li class="is-active"><a href>Introduction</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Introduction</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/mivanic/GlobalTradeAnalysisProjectModelV7.jl/blob/master/docs/src/introduction.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Introduction"><a class="docs-heading-anchor" href="#Introduction">Introduction</a><a id="Introduction-1"></a><a class="docs-heading-anchor-permalink" href="#Introduction" title="Permalink"></a></h1><p>This package is intended to allow the user to run the standard GTAP model v 7 in levels and completely in Julia (JuMP, Ipopt).</p><p>Install:</p><pre><code class="language-julia hljs">using Pkg
+Pkg.add(&quot;GlobalTradeAnalysisProjectModelV7&quot;)</code></pre><p>Useful packages:</p><pre><code class="language-julia hljs">using Pkg
+Pkg.add(&quot;HeaderArrayFile&quot;)
+Pkg.add(&quot;NamedArrays&quot;)</code></pre><h2 id="Simple-example"><a class="docs-heading-anchor" href="#Simple-example">Simple example</a><a id="Simple-example-1"></a><a class="docs-heading-anchor-permalink" href="#Simple-example" title="Permalink"></a></h2><p>You can also show example code:</p><pre><code class="language-julia hljs"># Load packages
+using GlobalTradeAnalysisProjectModelV7, HeaderArrayFile, NamedArrays
+
+# Get the sample data
+(hData, hParameters, hSets) = get_sample_data()
+
+# Clean the data: trade below 1e-6 makes little sense
+valid_trade = hData[&quot;vxsb&quot;].&gt;1e-4
+for k ∈ [&quot;vcif&quot;,&quot;vmsb&quot;,&quot;vfob&quot;,&quot;vxsb&quot;]
+    hData[k][.!valid_trade].=0
+end
+
+# Produce initial uncalibrated model using the GTAP data
+mc = generate_initial_model(hSets=hSets, hData=hData, hParameters=hParameters)
+
+# Keep the start data for calibration---the value flows are the correct ones
+start_data = deepcopy(mc.data)
+
+# Run the model to get a solution
+run_model!(mc)
+
+# Let&#39;s keep the starting values of all data
+start_solution = deepcopy(mc.data)
+
+# Get the required inputs for calibration by providing the target values in start_data
+(;fixed_calibration, data_calibration)=generate_calibration_inputs(mc, start_data)
+
+# Keep the default closure (fixed) for later
+fixed_default = deepcopy(mc.fixed)
+
+# Load the calibration data and closure 
+mc.data = deepcopy(data_calibration)
+mc.fixed = deepcopy(fixed_calibration)
+
+run_model!(mc)
+
+# Save the calibrated data---this is the starting point for all simulation
+calibrated_data = deepcopy(mc.data)
+
+# Let&#39;s change the closure to the default (simulation) closure
+mc.fixed = deepcopy(fixed_default)
+
+# Start with the calibrated data
+mc.data = deepcopy(calibrated_data)
+
+
+### TARIFF SCENARIO
+# Double the power of tariff
+mc.data[&quot;tms&quot;][[&quot;crops&quot;, &quot;processed food&quot;], [&quot;mena&quot;, &quot;sub-saharan africa&quot;], &quot;eu&quot;] .= mc.data[&quot;tms&quot;][[&quot;crops&quot;, &quot;processed food&quot;], [&quot;mena&quot;, &quot;sub-saharan africa&quot;], &quot;eu&quot;] * 2
+
+# Run the model
+run_model!(mc)
+
+## View some of the solutions:
+# See change in exports to the eu
+round.((mc.data[&quot;qxs&quot;][:,:,&quot;eu&quot;] ./ calibrated_data[&quot;qxs&quot;][:,:,&quot;eu&quot;] .-1) .* 100,digits = 2)
+
+# See the percentage change in qpa, for example:
+round.((mc.data[&quot;qpa&quot;] ./ calibrated_data[&quot;qpa&quot;] .-1) .* 100, digits = 2)
+
+# Calculate EV
+ev = calculate_expenditure(sets = mc.sets, data0=calibrated_data, data1=mc.data, parameters=mc.parameters)  .- calibrated_data[&quot;y&quot;]</code></pre></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="../functions/">Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.0 on <span class="colophon-date" title="Friday 7 February 2025 17:19">Friday 7 February 2025</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
