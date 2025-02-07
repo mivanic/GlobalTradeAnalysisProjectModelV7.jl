@@ -20,7 +20,6 @@ A named tuple with elements hData, hParameters, hSets containing the aggregated 
 `julia
 (; hData, hParameters, hSets) = aggregate_data(hData=data, hParameters=parameters, hSets=sets, comMap=comMap, regMap=regMap, endMap=endMap)
 `
-
 """
 function aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)
 
