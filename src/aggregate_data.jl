@@ -1,13 +1,25 @@
 """
         aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)
 
-YOu can type math here ``\\int_0^1\\,x^2\\,dx``. And you can do fancy math
+Aggregates data, parameters and sets based on the provided mapping vectors.
 
-```math
-e^{i\\pi} + 1 = 0
-```
+        Args:
+                hData: a dictionary of GTAP data (arrays) with the names as found in HAR files
+                hParameters: a dictionary of GTAP parameters (arrays) with the names as found in HAR files
+                hSets: a dictionary of GTAP sets (vectors of strings) with the names as found in HAR files
+                comMap: a mapping vector (NamedVector) which provides for each element in set `comm` the desired aggregate name
+                regMap: a mapping vector (NamedVector) which provides for each element in set `reg` the desired aggregate name
+                endMap: a mapping vector (NamedVector) which provides for each element in set `endw` the desired aggregate name
 
-This is all in markdown. You can also use latex in the code blocks.
+        Retruns:
+                A named tuple with elements hData, hParameters, hSets containing the aggregated data
+        
+        Example:
+
+        ```julia
+        (; hData, hParameters, hSets) = aggregate_data(hData=data, hParameters=parameters, hSets=sets, comMap=comMap, regMap=regMap, endMap=endMap)
+        ```
+
 """
 function aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)
 
