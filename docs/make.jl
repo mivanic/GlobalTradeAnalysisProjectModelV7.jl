@@ -4,7 +4,9 @@ DocMeta.setdocmeta!(GlobalTradeAnalysisProjectModelV7, :DocTestSetup, :(using Gl
 
 
 const _PAGES = [
-    "Introduction" => ["index.md"],
+    "Introduction" => ["introduction.md"],
+    "Functions" => ["functions.md"],
+    "Types" => ["types.md"],
 ]
 
 
