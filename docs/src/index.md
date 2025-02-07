@@ -20,7 +20,7 @@ Pkg.add("NamedArrays")
 
 ## Simple example
 
-You can also show example code:
+This example will use a sample data set to do a simple tariff simulation.
 
 ```julia
 # Load packages
