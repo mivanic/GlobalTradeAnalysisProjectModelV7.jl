@@ -97,7 +97,7 @@ Because the model container contains an actual JuMP model, it is possible to mak
 
 Let's modify the assumption of the standard model that land supply is exogenous by replacing this assumption with a constant elasticity supply equation:
 
-$$\mbox{qe}_{\mbox{land}}=\alpha_{\mbox{land}}\times\left(\frac{\mbox{pe}_{\mbox{land}}}{\mbox{ppriv}}\right)^{\sigma_{\mbox{land}}}$$
+``\mbox{qe}_{\mbox{land}}=\alpha_{\mbox{land}}\times\left(\frac{\mbox{pe}_{\mbox{land}}}{\mbox{ppriv}}\right)^{\sigma_{\mbox{land}}}``
 
 Add new variables:
 
