@@ -86,3 +86,71 @@ round.((mc.data["qpa"] ./ calibrated_data["qpa"] .-1) .* 100, digits = 2)
 # Calculate EV
 ev = calculate_expenditure(sets = mc.sets, data0=calibrated_data, data1=mc.data, parameters=mc.parameters)  .- calibrated_data["y"]
 ```
+
+## Changes to the model
+
+
+Because the model container contains an actual JuMP model, it is possible to make changes to the model without rewriting it. 
+
+
+### Example
+
+Let's modify the assumption of the standard model that land supply is exogenous by replacing this assumption with a constant elasticity supply equation:
+
+$$\mbox{qe}_{\mbox{land}}=\alpha_{\mbox{land}}\times\left(\frac{\mbox{pe}_{\mbox{land}}}{\mbox{ppriv}}\right)^{\sigma_{\mbox{land}}}$$
+
+Add new variables:
+
+```julia
+reg= mc.sets["reg"]
+@variables(mc.model,
+    begin
+        land_scale[reg]
+        land_elasticity[reg]
+    end
+)
+```
+
+Add the equation:
+
+```julia 
+@constraints(mc.model,
+    begin
+        e_qo_land[r=reg], log(mc.model[:qe]["land", r]) == 
+            log(land_scale[r] * 
+                    (mc.model[:pe]["land",r] / 
+                       mc.model[:ppriv][r]) ^ land_elasticity[r])
+    end
+)
+```
+
+Calibrate the new  model (let me assume that the land supply elasticity is -1):
+
+```julia
+# Calibrate the new parameters
+mc.data["land_elasticity"]= -1 .* NamedArray(ones(length(reg)), reg)
+```
+
+Calculate the calibrated value of the scaling factor:
+
+```julia 
+mc.data["land_scale"] = 
+  mc.data["qe"]["land",:] ./ ((mc.data["pe"]["land",:] ./ 
+                mc.data["ppriv"]).^mc.data["land_elasticity"])
+```
+
+Finally,  make `qe` of land endogenous, and the new parameters exogenous:
+
+```julia
+mc.fixed["land_elasticity"]=
+  NamedArray(trues(size(mc.data["land_elasticity"])), reg)
+mc.fixed["land_scale"]= NamedArray(trues(size(mc.data["land_scale"])), reg)
+mc.fixed["qe"]["land",:].=false
+```
+
+You can run the modified model:
+
+```julia
+run_model!(mc)
+```
+
