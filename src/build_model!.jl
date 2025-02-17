@@ -477,19 +477,6 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             sf_save, log.(σsave .+ σyp .+ σyg) .== log(1)
 
             # Shares (helpers)
-            # e_σ_vp[c=comm, r=reg], σ_vp[c, r] * sum(ppd[:, r] .* qpd[:, r] .+ ppm[:, r] .* qpm[:, r]) == ppd[c, r] .* qpd[c, r] + ppm[c, r] .* qpm[c, r]
-            # e_σ_vdp[c=comm, r=reg], σ_vdp[c, r] * (ppd[c, r] .* qpd[c, r] .+ ppm[c, r] .* qpm[c, r]) == ppd[c, r] .* qpd[c, r]
-            # e_σ_vg[c=comm, r=reg], σ_vg[c, r] * sum(pgd[:, r] .* qgd[:, r] .+ pgm[:, r] .* qgm[:, r]) == pgd[c, r] .* qgd[c, r] + pgm[c, r] .* qgm[c, r]
-            # e_σ_vdg[c=comm, r=reg], σ_vdg[c, r] * (pgd[c, r] .* qgd[c, r] .+ pgm[c, r] .* qgm[c, r]) == pgd[c, r] .* qgd[c, r]
-            # e_σ_vi[c=comm, r=reg], σ_vi[c, r] * sum(pid[:, r] .* qid[:, r] .+ pim[:, r] .* qim[:, r]) == pid[c, r] .* qid[c, r] + pim[c, r] .* qim[c, r]
-            # e_σ_vdi[c=comm, r=reg], σ_vdi[c, r] * (pid[c, r] .* qid[c, r] .+ pim[c, r] .* qim[c, r]) == pid[c, r] .* qid[c, r]
-            # e_σ_vf[c=comm, a=acts, r=reg], σ_vf[c, a, r] * sum(pfd[:, a, r] .* qfd[:, a, r] .+ pfm[:, a, r] .* qfm[:, a, r]) == pfd[c, a, r] .* qfd[c, a, r] + pfm[c, a, r] .* qfm[c, a, r]
-            # e_σ_vdf[c=comm, a=acts, r=reg], σ_vdf[c, a, r] * (pfd[c, a, r] .* qfd[c, a, r] .+ pfm[c, a, r] .* qfm[c, a, r]) == pfd[c, a, r] .* qfd[c, a, r]
-            # e_σ_vif[a=acts, r=reg], σ_vif[a, r] * (pva[a, r] * qva[a, r] + pint[a, r] * qint[a, r]) == pint[a, r] * qint[a, r]
-            # e_σ_vff[e=endw, a=acts, r=reg], σ_vff[e, a, r] * sum(Vector(pfe[:, a, r] .* qfe[:, a, r])[δ_evfp[:, a, r]]) == pfe[e, a, r] .* qfe[e, a, r]
-            # e_σ_vtwr[m=marg, c=comm, s=reg, d=reg], σ_vtwr[m, c, s, d] * pcif[c, s, d] * qxs[c, s, d] == pt[m] * qtmfsd[m, c, s, d]
-            # e_σ_qxs[c=comm, s=reg, d=reg], σ_qxs[c, s, d] * sum(Vector(pcif[c, :, d] .* qxs[c, :, d])[δ_qxs[c, :, d]]) == pcif[c, s, d] .* qxs[c, s, d]
-
             e_σ_vp[c=comm, r=reg], log(σ_vp[c, r]) + log(sum(ppd[:, r] .* qpd[:, r] .+ ppm[:, r] .* qpm[:, r]))  == log(ppd[c, r] .* qpd[c, r] + ppm[c, r] .* qpm[c, r]) 
             e_σ_vdp[c=comm, r=reg], log(σ_vdp[c, r]) + log(ppd[c, r] .* qpd[c, r] .+ ppm[c, r] .* qpm[c, r]) == log(ppd[c, r] .* qpd[c, r])
             e_σ_vg[c=comm, r=reg], log(σ_vg[c, r]) + log(sum(pgd[:, r] .* qgd[:, r] .+ pgm[:, r] .* qgm[:, r])) == log(pgd[c, r] .* qgd[c, r] + pgm[c, r] .* qgm[c, r])
