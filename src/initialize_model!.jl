@@ -16,7 +16,8 @@ function initialize_model!(model_container)
                 printstyled("Values for $k are not provided in the data\n", color=:yellow)
             end
         elseif model_container.model[k] isa ConstraintRef
-        elseif typeof(Array(model_container.model[k])) ∈ [Array{VariableRef,1}, Array{VariableRef,2}, Array{VariableRef,3}, Array{VariableRef,4}, Array{VariableRef,5}]
+        elseif eltype(model_container.model[k]) <: ConstraintRef
+        elseif eltype(model_container.model[k]) <: VariableRef
             if String(k) ∈ names(model_container.data)
                 set_start_value.(Array(model_container.model[k])[Array(is_valid.(model_container.model, model_container.model[k]))], model_container.data[String(k)][Array(is_valid.(model_container.model, model_container.model[k]))])
             else
