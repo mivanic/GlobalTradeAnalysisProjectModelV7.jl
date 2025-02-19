@@ -125,8 +125,8 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
             pop2
             qpa2
             cy2
-            subpar2[com]
-            incpar2[com]
+            subpar2[comm]
+            incpar2[comm]
         end
     )
 
