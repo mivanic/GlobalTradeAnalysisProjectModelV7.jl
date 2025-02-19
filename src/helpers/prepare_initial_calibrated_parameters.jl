@@ -139,7 +139,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
     u2 = NamedArray(ones(length(reg)),reg)
 
     for r ∈ reg
-        set_start_value(u3, 1000)
+        set_start_value(u3, 10)
         set_start_value.(β2, 1)
         fix.(cy2,cy[r])
         fix.(pop2,pop[r])
@@ -149,8 +149,8 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         fix.(Vector(incpar2[comm]),incpar[comm,r])
         optimize!(m)
         u2[r].=value(u3)
-        if is_solved_and_feasible(m)
-            throw("Utility not found")
+        if !is_solved_and_feasible(m)
+            throw("Utility not found for $r")
         end
     end
 
