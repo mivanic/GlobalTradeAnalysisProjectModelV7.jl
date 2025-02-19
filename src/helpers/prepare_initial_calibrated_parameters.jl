@@ -132,7 +132,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
 
     @constraints(m,
         begin
-            c, log.([Vector(qpa2[:] / pop2); 1]) .== log.(cde(Vector(1 .- subpar2[:]), Vector(β2[:]), Vector(incpar2[:]), u3, Vector(ppa2[:]), cy2 / pop2))
+            c, log.([Vector(qpa2 / pop2); 1]) .== log.(cde(Vector(1 .- subpar2), Vector(β2), Vector(incpar2), u3, Vector(ppa2), cy2 / pop2))
         end
     )
     u2 = NamedArray(ones(length(reg)),reg)
