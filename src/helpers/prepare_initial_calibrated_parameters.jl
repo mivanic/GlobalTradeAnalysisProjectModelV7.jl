@@ -136,22 +136,25 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
             c, log.([Vector(qpa2 ./ pop2); 1]) .== log.(cde(Vector(1 .- subpar2), Vector(β2), Vector(incpar2), u3, Vector(ppa2), cy2 ./ pop2))
         end
     )
-    u2 = NamedArray(ones(length(reg)),reg)
+    u2 = NamedArray(ones(length(reg)), reg)
 
     for r ∈ reg
-        set_start_value(u3, 10)
-        set_start_value.(β2, 1)
-        fix.(cy2,cy[r])
-        fix.(pop2,pop[r])
-        fix.(Vector(qpa2[comm]),qpa[comm,r])
-        fix.(Vector(ppa2[comm]),ppa[comm,r])
-        fix.(Vector(subpar2[comm]),subpar[comm,r])
-        fix.(Vector(incpar2[comm]),incpar[comm,r])
+        set_start_value(u3, 0.1)
+        set_start_value.(β2, 0.1)
+        fix.(cy2, cy[r])
+        fix.(pop2, pop[r])
+        fix.(Vector(qpa2[comm]), qpa[comm, r])
+        fix.(Vector(ppa2[comm]), ppa[comm, r])
+        fix.(Vector(subpar2[comm]), subpar[comm, r])
+        fix.(Vector(incpar2[comm]), incpar[comm, r])
         optimize!(m)
-        u2[r].=value(u3)
         if !is_solved_and_feasible(m)
-            throw("Utility not found for $r")
+            optimize!(m)
+            if !is_solved_and_feasible(m)
+                throw("Utility not found for $r")
+            end
         end
+        u2[r] .= value(u3)
     end
 
     # Household domestic/imported sourcing
@@ -242,7 +245,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
     # Vector(qes["land", :, "eu"])[Vector(α_qes2["land", :, "eu"]).!=0] 
     # Vector(demand_ces(qe["land", "eu"], Vector(pes["land", :, "eu"])[Vector(α_qes2["land", :, "eu"]).!=0], Vector(α_qes2["land", :, "eu"])[Vector(α_qes2["land", :, "eu"]).!=0], etrae["land", "eu"], γ_qes2[3, 2]))
 
-    
+
 
     δ = hData["vdep"] ./ hData["vkb"]
     ρ = mapslices(sum, hData["evos"][endwc, :, :], dims=[1, 2])[1, 1, :] ./ hData["vkb"]
@@ -252,25 +255,25 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
 
 
     # ϵs
-    ϵ_qxs = copy(γ_qxs)    
+    ϵ_qxs = copy(γ_qxs)
     ϵ_qxs[] .= 1
 
-    ϵ_qfe = copy(γ_qfe)    
+    ϵ_qfe = copy(γ_qfe)
     ϵ_qfe[] .= 1
 
-    ϵ_qes2 = copy(γ_qes2)    
+    ϵ_qes2 = copy(γ_qes2)
     ϵ_qes2[] .= 1
 
-    ϵ_qfdqfm = copy(γ_qfdqfm)    
+    ϵ_qfdqfm = copy(γ_qfdqfm)
     ϵ_qfdqfm[] .= 1
 
-    ϵ_qpdqpm = copy(γ_qpdqpm)    
+    ϵ_qpdqpm = copy(γ_qpdqpm)
     ϵ_qpdqpm[] .= 1
 
-    ϵ_qgdqgm = copy(γ_qgdqgm)    
+    ϵ_qgdqgm = copy(γ_qgdqgm)
     ϵ_qgdqgm[] .= 1
 
-    ϵ_qidqim = copy(γ_qidqim)    
+    ϵ_qidqim = copy(γ_qidqim)
     ϵ_qidqim[] .= 1
 
 
