@@ -120,24 +120,40 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
     m = JuMP.Model(Ipopt.Optimizer)
     @variables(m,
         begin
-            1e-6 <= β[comm, reg]
-            1e-6 <= u2[reg]
+            1e-6 <= β2[comm]
+            1e-6 <= u3
+            pop2
+            qpa2
+            cy2
+            subpar2[com]
+            incpar2[com]
         end
     )
 
     @constraints(m,
         begin
-            c[r=reg], log.([Vector(qpa[:, r] / pop[r]); 1]) .== log.(cde(Vector(1 .- subpar[:, r]), Vector(β[:, r]), Vector(incpar[:, r]), u2[r], Vector(ppa[:, r]), cy[r] / pop[r]))
+            c, log.([Vector(qpa2[:] / pop2); 1]) .== log.(cde(Vector(1 .- subpar2[:]), Vector(β2[:]), Vector(incpar2[:]), u3, Vector(ppa2[:]), cy2 / pop2))
         end
     )
+    u2 = NamedArray(ones(length(reg)),reg)
 
-    set_start_value.(u2, 1000)
-    set_start_value.(β, 1)
-
-
-    optimize!(m)
+    for r ∈ reg
+        set_start_value(u3, 1000)
+        set_start_value.(β2, 1)
+        fix.(cy2,cy[r])
+        fix.(pop2,pop[r])
+        fix.(qpa2,qpa[:,r])
+        fix.(subpar2,subpar[:,r])
+        fix.(incpar2,incpar[:,r])
+        optimize!(m)
+        u2[r].=value(u3)
+        if is_solved_and_feasible(m)
+            throw("Utility not found")
+        end
+    end
 
     # Household domestic/imported sourcing
+
     prices = permutedims(cat(ppd, ppm, dims=3), [3, 1, 2])
     quantities = permutedims(cat(qpd, qpm, dims=3), [3, 1, 2])
     sigma = esubd
@@ -302,7 +318,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         :ρ => ρ
     )
 
-    new_data = Dict(:up => NamedArray(value.(u2.data), reg))
+    new_data = Dict(:up => NamedArray(u2, reg))
 
     return (
         parameters=parameters,
