@@ -150,7 +150,6 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         optimize!(m)
         if !is_solved_and_feasible(m)
             println("Utility not found for $r")
-            using JLD2
             save_object("output.jld2",Dict("cy2"=>cy[r], "pop2"=>pop[r], "qpa2"=>qpa[comm, r], "ppa2"=>ppa[comm, r], "subpar2"=>subpar[comm, r], "incpar2"=>incpar[comm, r]))
         end
         u2[r] .= value(u3)
