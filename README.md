@@ -54,7 +54,7 @@ sets = HeaderArrayFile.readHar("./gsdfset.har")
 
 ## Prepare the mapping vectors
 ## You can start by reading the regions, commodities and endowments from the disaggregated data and modifying them
-regMap = NamedArray(sets["reg"], sets["reg"])
+regMap = NamedArray(deepcopy(sets["reg"]), sets["reg"])
 regMap[1:3] .= "oceania"
 regMap[4:27] .= "asia"
 regMap[28:55] .= "americas"
@@ -64,7 +64,7 @@ regMap[99:121] .= "mena"
 regMap[122:160] .= "subsaharan africa"
 
 
-comMap = NamedArray(sets["comm"], sets["comm"])
+comMap = NamedArray(deepcopy(sets["comm"]), sets["comm"])
 comMap[1:8] .= "crops"
 comMap[9:12] .= "animals"
 comMap[13:18] .= "extract"
@@ -72,7 +72,7 @@ comMap[19:26] .= "processed food"
 comMap[27:45] .= "manuf"
 comMap[46:65] .= "svces"
 
-endMap = NamedArray(sets["endw"], sets["endw"])
+endMap = NamedArray(deepcopy(sets["endw"]), sets["endw"])
 endMap[:] .= "other"
 endMap[1:1] .= "land"
 endMap[[2,5]] .= "skilled labor"
@@ -82,6 +82,28 @@ endMap["capital"] = "capital"
 # Do the aggregation
 (; hData, hParameters, hSets) = aggregate_data(hData=data, hParameters=parameters, hSets=sets, comMap=comMap, regMap=regMap, endMap=endMap)
 
+```
+
+# Clean the data: trade below 1e-4 (100 dollars) makes little sense
+
+```
+valid_trade = hData["vxsb"].>1e-4
+for k ∈ ["vcif","vmsb","vfob","vxsb"]
+    hData[k][.!valid_trade].=0
+end
+for k ∈ ["vtwr"]
+    for m ∈ mc.sets["marg"]
+        for c ∈ mc.sets["comm"]
+            for s ∈ mc.sets["reg"]
+                for d ∈ mc.sets["reg"]
+                    if !valid_trade[c, s, d]
+                        hData[k][m,c,s,d] .= 0
+                    end
+                end
+            end
+        end
+    end
+end
 ```
 
 # Alternatively, get a sample dataset
