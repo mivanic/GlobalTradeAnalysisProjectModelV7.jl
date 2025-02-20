@@ -92,10 +92,10 @@ for k ∈ ["vcif","vmsb","vfob","vxsb"]
     hData[k][.!valid_trade].=0
 end
 for k ∈ ["vtwr"]
-    for m ∈ mc.sets["marg"]
-        for c ∈ mc.sets["comm"]
-            for s ∈ mc.sets["reg"]
-                for d ∈ mc.sets["reg"]
+    for m ∈ hSets["marg"]
+        for c ∈ hSets["comm"]
+            for s ∈ hSets["reg"]
+                for d ∈ hSets["reg"]
                     if !valid_trade[c, s, d]
                         hData[k][m,c,s,d] .= 0
                     end
