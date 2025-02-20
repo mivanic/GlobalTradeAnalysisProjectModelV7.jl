@@ -149,10 +149,9 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         fix.(Vector(incpar2[comm]), incpar[comm, r])
         optimize!(m)
         if !is_solved_and_feasible(m)
-            optimize!(m)
-            if !is_solved_and_feasible(m)
-                throw("Utility not found for $r")
-            end
+            println("Utility not found for $r")
+            using JLD2
+            save_object("output.jld2",Dict("cy2"=>cy[r], "pop2"=>pop[r], "qpa2"=>qpa[comm, r], "ppa2"=>ppa[comm, r], "subpar2"=>subpar[comm, r], "incpar2"=>incpar[comm, r]))
         end
         u2[r] .= value(u3)
     end
