@@ -120,8 +120,8 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
     m = JuMP.Model(Ipopt.Optimizer)
     @variables(m,
         begin
-            1e-6 <= β2[comm]
-            1e-6 <= u3
+            1e-8 <= β2[comm]
+            1e-8 <= u3
             pop2
             qpa2[comm]
             ppa2[comm]
@@ -137,6 +137,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         end
     )
     u2 = NamedArray(ones(length(reg)), reg)
+    β2 = NamedArray(ones(length(comm), length(reg)), (comm,reg))
 
     for r ∈ reg
         set_start_value(u3, 0.1)
@@ -149,10 +150,12 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         fix.(Vector(incpar2[comm]), incpar[comm, r])
         optimize!(m)
         if !is_solved_and_feasible(m)
-            println("Utility not found for $r")
-            save_object("output.jld2",Dict("cy2"=>cy[r], "pop2"=>pop[r], "qpa2"=>qpa[comm, r], "ppa2"=>ppa[comm, r], "subpar2"=>subpar[comm, r], "incpar2"=>incpar[comm, r]))
+            #println("Utility not found for $r")
+            #save_object("output.jld2",Dict("cy2"=>cy[r], "pop2"=>pop[r], "qpa2"=>qpa[comm, r], "ppa2"=>ppa[comm, r], "subpar2"=>subpar[comm, r], "incpar2"=>incpar[comm, r]))
+            throw("Could not solve for initial utility in $r")
         end
         u2[r] .= value(u3)
+        β[comm,r] .= value.(β2)
     end
 
     # Household domestic/imported sourcing
@@ -293,7 +296,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         :γ_pca => γ_pca,
         :σyp => σyp,
         :σyg => NamedArray(σyg, reg),
-        :β_qpa => NamedArray(Array(value.(β)), axes(β)),
+        :β_qpa => β,# NamedArray(Array(value.(β)), axes(β)),
         :α_qpdqpm => α_qpdqpm,
         :γ_qpdqpm => γ_qpdqpm,
         :ϵ_qpdqpm => ϵ_qpdqpm,
@@ -321,7 +324,8 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         :ρ => ρ
     )
 
-    new_data = Dict(:up => NamedArray(u2, reg))
+    new_data = Dict(:up => u2 #NamedArray(u2, reg)
+    )
 
     return (
         parameters=parameters,
