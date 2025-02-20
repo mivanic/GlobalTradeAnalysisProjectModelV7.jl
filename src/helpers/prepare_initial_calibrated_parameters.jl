@@ -137,7 +137,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         end
     )
     u2 = NamedArray(ones(length(reg)), reg)
-    β2 = NamedArray(ones(length(comm), length(reg)), (comm,reg))
+    β = NamedArray(ones(length(comm), length(reg)), (comm,reg))
 
     for r ∈ reg
         set_start_value(u3, 0.1)
