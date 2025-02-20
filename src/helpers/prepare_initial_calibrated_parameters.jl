@@ -155,7 +155,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
             throw("Could not solve for initial utility in $r")
         end
         u2[r] .= value(u3)
-        β[comm,r] .= value.(β2)
+        β[comm,r] .= Vector(value.(β2))
     end
 
     # Household domestic/imported sourcing
