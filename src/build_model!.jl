@@ -279,9 +279,9 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
 
             # Firms (distribution)
             e_qca[a=acts, r=reg], log.(Vector(qca[:, a, r])[δ_maks[:, a, r]]) .== log.(Vector(ces(qo[a, r], Vector(ps[:, a, r])[δ_maks[:, a, r]], Vector(α_qca[:, a, r])[δ_maks[:, a, r]], etraq[a, r], γ_qca[a, r])))
-            e_po[a=acts, r=reg], log.(po[a, r] * qo[a, r]) == log.(sum(qca[:, a, r] .* ps[:, a, r]))
+            e_po[a=acts, r=reg], log.(po[a, r] * qo[a, r]) == log.(sum(Vector(qca[:, a, r] .* ps[:, a, r])[δ_maks[:,a,r]]))
             e_pca[c=comm, r=reg], log.((esubq[c, r] == 0 ? Vector(pca[c, :, r])[δ_maks[c, :, r]] : Vector(qca[c, :, r])[δ_maks[c, :, r]])) .== log.((esubq[c, r] == 0 ? pds[c, r] : Vector(ces(qc[c, r], Vector(pca[c, :, r])[δ_maks[c, :, r]], Vector(α_pca[c, :, r])[δ_maks[c, :, r]], 1 / esubq[c, r], γ_pca[c, r]))))
-            e_qc[c=comm, r=reg], log(pds[c, r] * qc[c, r]) == log(sum(pca[c, :, r] .* qca[c, :, r]))
+            e_qc[c=comm, r=reg], log(pds[c, r] * qc[c, r]) == log(sum(Vector(pca[c, :, r] .* qca[c, :, r])[δ_maks[c, :, r]]))
             e_ps[c=comm, a=acts, r=reg; δ_maks[c, a, r]], log(pca[c, a, r]) == log(ps[c, a, r] * to[c, a, r])
 
             # Endowments
@@ -302,7 +302,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
                 sum(qim[:, r] .* pms[:, r] .* (tim[:, r] .- 1)) +
                 sum(qfd[:, :, r] .* pfd[:, :, r] ./ tfd[:, :, r] .* (tfd[:, :, r] .- 1)) +
                 sum(qfm[:, :, r] .* pfm[:, :, r] ./ tfm[:, :, r] .* (tfm[:, :, r] .- 1)) +
-                sum(qca[:, :, r] .* ps[:, :, r] .* (to[:, :, r] .- 1)) +
+                sum(Array(qca[:, :, r] .* ps[:, :, r] .* (to[:, :, r] .- 1))[δ_maks[:,:,r]]) +
                 sum(qfe[:, :, r] .* peb[:, :, r] .* (tfe[:, :, r] .- 1)) +
                 sum(qxs[:, r, :] .* pfob[:, r, :] ./ txs[:, r, :] .* (txs[:, r, :] .- 1)) +
                 sum(qxs[:, :, r] .* pcif[:, :, r] .* (tms[:, :, r] .- 1))
