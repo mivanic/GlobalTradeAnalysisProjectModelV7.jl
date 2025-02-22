@@ -273,7 +273,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             e_pint[a=acts, r=reg], log.(qint[a, r] * pint[a, r]) == log.(sum(pfa[:, a, r] .* qfa[:, a, r]))
             e_qfe[a=acts, r=reg], log.(Vector(qfe[:, a, r])[δ_evfp[:, a, r]]) .== log.(ces(qva[a, r], Vector(pfe[:, a, r])[δ_evfp[:, a, r]], Vector(α_qfe[:, a, r])[δ_evfp[:, a, r]], esubva[a, r], γ_qfe[a, r]))
 
-            e_pva[a=acts, r=reg], log.(qva[a, r] * pva[a, r]) == log.(sum(pfe[:, a, r] .* qfe[:, a, r]))
+            e_pva[a=acts, r=reg], log.(qva[a, r] * pva[a, r]) == log.(sum(Vector(pfe[:, a, r] .* qfe[:, a, r])[δ_evfp[:, a, r]]))
             e_qfdqfm[c=comm, a=acts, r=reg], log.([qfd[c, a, r], qfm[c, a, r]]) .== log.(ces(qfa[c, a, r], [pfd[c, a, r], pfm[c, a, r]], α_qfdqfm[:, c, a, r], esubd[c, r], γ_qfdqfm[c, a, r]))
             e_pfa, log.(pfa .* qfa) .== log.(qfd .* pfd .+ qfm .* pfm)
 
@@ -303,7 +303,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
                 sum(qfd[:, :, r] .* pfd[:, :, r] ./ tfd[:, :, r] .* (tfd[:, :, r] .- 1)) +
                 sum(qfm[:, :, r] .* pfm[:, :, r] ./ tfm[:, :, r] .* (tfm[:, :, r] .- 1)) +
                 sum(Array(qca[:, :, r] .* ps[:, :, r] .* (to[:, :, r] .- 1))[δ_maks[:,:,r]]) +
-                sum(qfe[:, :, r] .* peb[:, :, r] .* (tfe[:, :, r] .- 1)) +
+                sum(Array(qfe[:, :, r] .* peb[:, :, r] .* (tfe[:, :, r] .- 1))[δ_evfp[:, :, r]]) +
                 sum(qxs[:, r, :] .* pfob[:, r, :] ./ txs[:, r, :] .* (txs[:, r, :] .- 1)) +
                 sum(qxs[:, :, r] .* pcif[:, :, r] .* (tms[:, :, r] .- 1))
             )
