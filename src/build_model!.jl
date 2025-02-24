@@ -524,7 +524,8 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             e_σ_vif[a=acts, r=reg], log(σ_vif[a, r]) + log(pva[a, r] * qva[a, r] + pint[a, r] * qint[a, r]) == log(pint[a, r] * qint[a, r])
             e_σ_vff[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log(σ_vff[e, a, r]) + log(sum(Vector(pfe[:, a, r] .* qfe[:, a, r])[δ_evfp[:,a,r]])) == log(pfe[e, a, r] * qfe[e, a, r])
             e_σ_vtwr[m=marg, c=comm, s=reg, d=reg; δ_vtwr[m, c, s, d]], log(σ_vtwr[m, c, s, d]) + log(pcif[c, s, d] * qxs[c, s, d]) == log(pt[m] * qtmfsd[m, c, s, d])
-            e_σ_qxs[c=comm, s=reg, d=reg; δ_qxs[c, s, d]], log(σ_qxs[c, s, d]) + log(sum(Vector(pcif[c, :, d] .* qxs[c, :, d])[δ_qxs[c,:,d]])) == log(pcif[c, s, d] .* qxs[c, s, d])
+            #e_σ_qxs[c=comm, s=reg, d=reg; δ_qxs[c, s, d]], log(σ_qxs[c, s, d]) + log(sum(Vector(pcif[c, :, d] .* qxs[c, :, d])[δ_qxs[c,:,d]])) == log(pcif[c, s, d] .* qxs[c, s, d])
+            e_σ_qxs[c=comm, s=reg, d=reg; δ_qxs[c, s, d]], σ_qxs[c, s, d] * sum(Vector(pcif[c, :, d] .* qxs[c, :, d])[δ_qxs[c, :, d]]) == pcif[c, s, d] .* qxs[c, s, d]
             e_σ_qinv[r=reg], σ_qinv[r] == psave[r] * qsave[r] / sum(psave .* qsave)
             e_σ_ρ[r=reg], log((kb[r] * pinv[r]) * σ_ρ[r]) == log(sum(Array(pes[:, :, r] .* qes[:, :, r])[δ_evfp[:,:,r]]))
         end
