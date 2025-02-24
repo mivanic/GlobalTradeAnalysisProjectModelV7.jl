@@ -152,7 +152,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         optimize!(m)
         if !is_solved_and_feasible(m)
             #println("Utility not found for $r")
-            #save_object("output.jld2",Dict("cy2"=>cy[r], "pop2"=>pop[r], "qpa2"=>qpa[comm, r], "ppa2"=>ppa[comm, r], "subpar2"=>subpar[comm, r], "incpar2"=>incpar[comm, r]))
+            save_object("output.jld2",Dict("cy2"=>cy[r], "pop2"=>pop[r], "qpa2"=>qpa[comm, r], "ppa2"=>ppa[comm, r], "subpar2"=>subpar[comm, r], "incpar2"=>incpar[comm, r]))
             throw("Could not solve for initial utility in $r")
         end
         u2[r] .= value(u3)
