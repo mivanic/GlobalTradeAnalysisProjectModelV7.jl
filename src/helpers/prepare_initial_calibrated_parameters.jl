@@ -120,50 +120,24 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
     m = JuMP.Model(Ipopt.Optimizer)
     @variables(m,
         begin
-            1e-8 <= β2[comm]
-            1e-8 <= u3
-            pop2
-            qpa2[comm]
-            ppa2[comm]
-            1e-8 <= cy2
-            subpar2[comm]
-            incpar2[comm]
+            1e-6 <= β[comm, reg]
+            1e-6 <= u2[reg]
         end
     )
 
     @constraints(m,
         begin
-            c1, log.([Vector(qpa2 ./ pop2); 1]) .== log.(cde(Vector(1 .- subpar2), Vector(β2), Vector(incpar2), u3, Vector(ppa2), sum(ppa2 .* qpa2) ./ pop2))
+            c[r=reg], log.([Vector(qpa[:, r] / pop[r]); 1]) .== log.(cde(Vector(1 .- subpar[:, r]), Vector(β[:, r]), Vector(incpar[:, r]), u2[r], Vector(ppa[:, r]), cy[r] / pop[r]))
         end
     )
-    u2 = NamedArray(ones(length(reg)), reg)
-    β = NamedArray(ones(length(comm), length(reg)), (comm,reg))
 
-    delete(m,all_constraints(m;include_variable_in_set_constraints=false)[1])
+    set_start_value.(u2, 1000)
+    set_start_value.(β, 1)
 
-    for r ∈ reg
-        set_start_value(u3, 0.1)
-        set_start_value.(β2, 0.1)
-        #fix.(cy2, cy[r])
-        #fix.(u3, cy[r] / pop[r];force = true)
-        fix.(u3, 100;force = true)
-        fix.(pop2, pop[r])
-        fix.(Vector(qpa2[comm]), qpa[comm, r])
-        fix.(Vector(ppa2[comm]), ppa[comm, r])
-        fix.(Vector(subpar2[comm]), subpar[comm, r])
-        fix.(Vector(incpar2[comm]), incpar[comm, r])
-        optimize!(m)
-        if !is_solved_and_feasible(m)
-            #println("Utility not found for $r")
-            save_object("output.jld2",Dict("cy2"=>cy[r], "pop2"=>pop[r], "qpa2"=>qpa[comm, r], "ppa2"=>ppa[comm, r], "subpar2"=>subpar[comm, r], "incpar2"=>incpar[comm, r]))
-            throw("Could not solve for initial utility in $r")
-        end
-        u2[r] .= value(u3)
-        β[comm,r] .= Vector(value.(β2))
-    end
+
+    optimize!(m)
 
     # Household domestic/imported sourcing
-
     prices = permutedims(cat(ppd, ppm, dims=3), [3, 1, 2])
     quantities = permutedims(cat(qpd, qpm, dims=3), [3, 1, 2])
     sigma = esubd
@@ -250,7 +224,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
     # Vector(qes["land", :, "eu"])[Vector(α_qes2["land", :, "eu"]).!=0] 
     # Vector(demand_ces(qe["land", "eu"], Vector(pes["land", :, "eu"])[Vector(α_qes2["land", :, "eu"]).!=0], Vector(α_qes2["land", :, "eu"])[Vector(α_qes2["land", :, "eu"]).!=0], etrae["land", "eu"], γ_qes2[3, 2]))
 
-
+    
 
     δ = hData["vdep"] ./ hData["vkb"]
     ρ = mapslices(sum, hData["evos"][endwc, :, :], dims=[1, 2])[1, 1, :] ./ hData["vkb"]
@@ -260,25 +234,25 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
 
 
     # ϵs
-    ϵ_qxs = copy(γ_qxs)
+    ϵ_qxs = copy(γ_qxs)    
     ϵ_qxs[] .= 1
 
-    ϵ_qfe = copy(γ_qfe)
+    ϵ_qfe = copy(γ_qfe)    
     ϵ_qfe[] .= 1
 
-    ϵ_qes2 = copy(γ_qes2)
+    ϵ_qes2 = copy(γ_qes2)    
     ϵ_qes2[] .= 1
 
-    ϵ_qfdqfm = copy(γ_qfdqfm)
+    ϵ_qfdqfm = copy(γ_qfdqfm)    
     ϵ_qfdqfm[] .= 1
 
-    ϵ_qpdqpm = copy(γ_qpdqpm)
+    ϵ_qpdqpm = copy(γ_qpdqpm)    
     ϵ_qpdqpm[] .= 1
 
-    ϵ_qgdqgm = copy(γ_qgdqgm)
+    ϵ_qgdqgm = copy(γ_qgdqgm)    
     ϵ_qgdqgm[] .= 1
 
-    ϵ_qidqim = copy(γ_qidqim)
+    ϵ_qidqim = copy(γ_qidqim)    
     ϵ_qidqim[] .= 1
 
 
@@ -300,7 +274,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         :γ_pca => γ_pca,
         :σyp => σyp,
         :σyg => NamedArray(σyg, reg),
-        :β_qpa => β,# NamedArray(Array(value.(β)), axes(β)),
+        :β_qpa => NamedArray(Array(value.(β)), axes(β)),
         :α_qpdqpm => α_qpdqpm,
         :γ_qpdqpm => γ_qpdqpm,
         :ϵ_qpdqpm => ϵ_qpdqpm,
@@ -328,8 +302,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         :ρ => ρ
     )
 
-    new_data = Dict(:up => u2 #NamedArray(u2, reg)
-    )
+    new_data = Dict(:up => NamedArray(value.(u2.data), reg))
 
     return (
         parameters=parameters,
