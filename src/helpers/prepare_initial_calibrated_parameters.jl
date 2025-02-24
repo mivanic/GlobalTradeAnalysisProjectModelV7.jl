@@ -125,7 +125,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
             pop2
             qpa2[comm]
             ppa2[comm]
-            cy2
+            1e-8 <= cy2
             subpar2[comm]
             incpar2[comm]
         end
@@ -133,7 +133,8 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
 
     @constraints(m,
         begin
-            c, log.([Vector(qpa2 ./ pop2); 1]) .== log.(cde(Vector(1 .- subpar2), Vector(β2), Vector(incpar2), u3, Vector(ppa2), cy2 ./ pop2))
+            c1, log.([Vector(qpa2 ./ pop2); 1]) .== log.(cde(Vector(1 .- subpar2), Vector(β2), Vector(incpar2), u3, Vector(ppa2), cy2 ./ pop2))
+            c2, log(cy2) == log(sum(ppa2 .* qpa2))
         end
     )
     u2 = NamedArray(ones(length(reg)), reg)
@@ -142,7 +143,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
     for r ∈ reg
         set_start_value(u3, 0.1)
         set_start_value.(β2, 0.1)
-        fix.(cy2, cy[r])
+        #fix.(cy2, cy[r])
         fix.(pop2, pop[r])
         fix.(Vector(qpa2[comm]), qpa[comm, r])
         fix.(Vector(ppa2[comm]), ppa[comm, r])
