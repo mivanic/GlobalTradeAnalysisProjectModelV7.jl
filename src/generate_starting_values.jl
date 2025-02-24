@@ -89,7 +89,8 @@ function generate_starting_values(; hSets, hData, hParameters)
         Dict("σ_qinv" => 1),
         Dict(k => y_max for k ∈ ["fincome", "y", "yp", "yg"]),
         Dict(k => 10 for k ∈ ["uelas", "uepriv"]),
-        Dict(k => 1 for k ∈ ["δ", "ρ"])
+        Dict(k => 1 for k ∈ ["δ", "ρ"]),
+        Dict("σsave" => 1)
     )
 
 
