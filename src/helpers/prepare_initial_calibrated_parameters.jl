@@ -133,17 +133,19 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
 
     @constraints(m,
         begin
-            c1, log.([Vector(qpa2 ./ pop2); 1]) .== log.(cde(Vector(1 .- subpar2), Vector(β2), Vector(incpar2), u3, Vector(ppa2), cy2 ./ pop2))
-            c2, log(cy2) == log(sum(ppa2 .* qpa2))
+            c1, log.([Vector(qpa2 ./ pop2); 1]) .== log.(cde(Vector(1 .- subpar2), Vector(β2), Vector(incpar2), u3, Vector(ppa2), sum(ppa2 .* qpa2) ./ pop2))
         end
     )
     u2 = NamedArray(ones(length(reg)), reg)
     β = NamedArray(ones(length(comm), length(reg)), (comm,reg))
 
+    delete(m,all_constraints(m;include_variable_in_set_constraints=false)[1])
+
     for r ∈ reg
         set_start_value(u3, 0.1)
         set_start_value.(β2, 0.1)
         #fix.(cy2, cy[r])
+        fix.(u3,1;force = true)
         fix.(pop2, pop[r])
         fix.(Vector(qpa2[comm]), qpa[comm, r])
         fix.(Vector(ppa2[comm]), ppa[comm, r])
