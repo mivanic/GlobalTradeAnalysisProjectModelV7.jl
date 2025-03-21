@@ -260,26 +260,26 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
 
 
     # ϵs
-    ϵ_qxs = copy(γ_qxs)
-    ϵ_qxs[] .= 1
+    ϵ_qxs = deepcopy(γ_qxs)
+    ϵ_qxs .= 1
 
-    ϵ_qfe = copy(γ_qfe)
-    ϵ_qfe[] .= 1
+    ϵ_qfe = deepcopy(γ_qfe)
+    ϵ_qfe .= 1
 
-    ϵ_qes2 = copy(γ_qes2)
-    ϵ_qes2[] .= 1
+    ϵ_qes2 = deepcopy(γ_qes2)
+    ϵ_qes2 .= 1
 
-    ϵ_qfdqfm = copy(γ_qfdqfm)
-    ϵ_qfdqfm[] .= 1
+    ϵ_qfdqfm = deepcopy(γ_qfdqfm)
+    ϵ_qfdqfm .= 1
 
-    ϵ_qpdqpm = copy(γ_qpdqpm)
-    ϵ_qpdqpm[] .= 1
+    ϵ_qpdqpm = deepcopy(γ_qpdqpm)
+    ϵ_qpdqpm .= 1
 
-    ϵ_qgdqgm = copy(γ_qgdqgm)
-    ϵ_qgdqgm[] .= 1
+    ϵ_qgdqgm = deepcopy(γ_qgdqgm)
+    ϵ_qgdqgm .= 1
 
-    ϵ_qidqim = copy(γ_qidqim)
-    ϵ_qidqim[] .= 1
+    ϵ_qidqim = deepcopy(γ_qidqim)
+    ϵ_qidqim .= 1
 
 
     # Return the new parameter values along with the old ones

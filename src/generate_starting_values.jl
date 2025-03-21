@@ -60,7 +60,7 @@ function generate_starting_values(; hSets, hData, hParameters)
     σ_min = 0
     y_min = 1e-8
     y_max = 1e12
-    v_min = 0
+    v_min = 1e-12
 
 
     lower = merge(

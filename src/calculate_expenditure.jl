@@ -34,7 +34,7 @@ function calculate_expenditure(; sets, data0, data1, parameters, max_iter=50, co
     # Set up the general constraints
     p_min = 1e-8
     p_max = 1e+8
-    q_min = 1e-8
+    q_min = 1e-9
     q_max = 1e+12
     y_min = 1e-8
     y_max = 1e+12

@@ -167,7 +167,8 @@ function prepare_quantities(; data, parameters, sets, hData)
         :vmip => hData["vmip"],
         :vkb => hData["vkb"],
         :uepriv => uepriv,
-        :uelas => uelas
+        :uelas => uelas,
+        :vst=>vst
     )
 
     return merge(data, Dict(String(k)=>quantities[k] for k ∈ keys(quantities)))

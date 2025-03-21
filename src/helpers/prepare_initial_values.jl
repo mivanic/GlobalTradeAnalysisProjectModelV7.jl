@@ -58,10 +58,9 @@ function prepare_initial_values(; sets, hData, hParameters)
     pms = NamedArray(ones(length(comm), length(reg)), (comm, reg))
     pcgdswld = 1
     psave = NamedArray(ones(length(reg)), (reg))
-    u = NamedArray(ones(length(reg)), (reg))
-    up = NamedArray(ones(length(reg)), (reg))
-    ug = NamedArray(ones(length(reg)), (reg))
-    us = NamedArray(ones(length(reg)), (reg))
+    
+    up = NamedArray(100*ones(length(reg)), (reg))
+    
     pmds = NamedArray(ones(length(comm), length(reg), length(reg)), (comm, reg, reg))
     pcif = NamedArray(ones(length(comm), length(reg), length(reg)), (comm, reg, reg))
     pfob = NamedArray(ones(length(comm), length(reg), length(reg)), (comm, reg, reg))
@@ -74,10 +73,60 @@ function prepare_initial_values(; sets, hData, hParameters)
     qe = NamedArray(mapslices(sum, hData["evos"], dims=[2])[:, 1, :], (endw, reg))[endwms, reg]
 
     pop = hData["pop"]
+    ug = yg ./ pop 
+    
+    us = hData["save"] ./ pop
 
+    u = up .^ (yp ./ y) .* ug .^ (yg ./ y) .* us .^ (1 .- (yp .+ yg) ./ y)
+    
     ppriv = NamedArray(ones(length(reg)), (reg))
     pfactor = NamedArray(ones(length(reg)), (reg))
     pfactwld = 1
+
+
+
+    σ_vp = (hData["vdpp"] .+ hData["vmpp"]) ./ repeat(mapslices(sum, hData["vdpp"] .+ hData["vmpp"], dims=1), inner=[length(comm), 1])
+    σ_vg = (hData["vdgp"] .+ hData["vmgp"]) ./ repeat(mapslices(sum, hData["vdgp"] .+ hData["vmgp"], dims=1), inner=[length(comm), 1])
+    σ_vi = (hData["vdip"] .+ hData["vmip"]) ./ repeat(mapslices(sum, hData["vdip"] .+ hData["vmip"], dims=1), inner=[length(comm), 1])
+    σ_vf = (hData["vdfp"] .+ hData["vmfp"]) ./ repeat(mapslices(sum, hData["vdfp"] .+ hData["vmfp"], dims=1), inner=[length(comm), 1, 1])
+    σ_vdp = (hData["vdpp"]) ./ (hData["vdpp"] .+ hData["vmpp"])
+    σ_vdg = (hData["vdgp"]) ./ (hData["vdgp"] .+ hData["vmgp"])
+    σ_vdi = (hData["vdip"]) ./ (hData["vdip"] .+ hData["vmip"])
+    σ_vdf = (hData["vdfp"]) ./ (hData["vdfp"] .+ hData["vmfp"])
+    σ_qxs = (hData["vcif"]) ./ repeat(mapslices(sum, hData["vcif"], dims=2), inner=[1, length(reg), 1])
+    σ_vff =  (hData["evfp"]) ./ repeat(mapslices(sum, hData["evfp"], dims=1), inner=[length(endw), 1, 1])
+    σsave = NamedArray(0.05*ones(length(reg)), (reg))
+    σ_qinv = NamedArray(0.05*ones(length(reg)), (reg))
+
+    for r ∈reg
+        σ_qinv[r] = hData["save"][r] / sum(hData["save"])
+    end
+
+
+    vfob = hData["vfob"]
+    ϵ_qfa = NamedArray(ones(length(comm), length(reg)), (comm,reg))
+    ϵ_qintva = NamedArray(ones(length(comm), length(reg)), (comm,reg))
+    ϵ_qga= NamedArray( ones(length(reg)), (reg))
+    ϵ_qia= NamedArray( ones(length(reg)), (reg))
+    ϵ_qinv =1
+    σ_vtwr = NamedArray( 0.01*ones(length(marg), length(comm), length(reg), length(reg)), (marg, comm, reg, reg))
+    for m ∈ marg
+        for c ∈ comm
+            for s ∈ reg
+                for d ∈ reg
+                    σ_vtwr[m,c,s,d] = hData["vtwr"][m,c,s,d] / hData["vcif"][c,s,d]
+                end
+            end
+        end
+    end
+
+    σ_vif = NamedArray( 0.5 * ones(length(comm), length(reg)), (comm, reg))
+    σ_ρ= NamedArray( 0.01 * ones(length(reg)), (reg))
+
+    for r ∈ reg
+        σ_ρ[r] = sum((hData["evos"][:, :, r])) / hData["vkb"][r]
+    end
+
 
 
     return (data = Dict(
@@ -128,7 +177,28 @@ function prepare_initial_values(; sets, hData, hParameters)
         "walras_dem" => walras_dem,
         "qe" => qe,
         "pop" => pop,
-        "pfactwld" => pfactwld
+        "pfactwld" => pfactwld,
+        "σ_vp" => σ_vp,
+        "σ_vg" => σ_vg,
+        "σ_vi" => σ_vi,
+        "σ_vf" => σ_vf,
+        "σ_vdp" => σ_vdp,
+        "σ_vdg" => σ_vdg,
+        "σ_vdi" => σ_vdi,
+        "σ_vdf" => σ_vdf,
+        "σ_qxs" => σ_qxs,
+        "σ_vff" => σ_vff,
+        "σsave" => σsave,
+        "σ_qinv" => σ_qinv,
+        "vfob" => vfob,
+        "ϵ_qfa" => ϵ_qfa,
+        "ϵ_qintva" => ϵ_qintva,
+        "ϵ_qga" => ϵ_qga,
+        "ϵ_qia" => ϵ_qia,
+        "ϵ_qinv" => ϵ_qinv,
+        "σ_vtwr" => σ_vtwr,
+        "σ_vif" => σ_vif,
+        "σ_ρ" => σ_ρ
     ))
 
 end
