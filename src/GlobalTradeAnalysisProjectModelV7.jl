@@ -1,6 +1,6 @@
 module GlobalTradeAnalysisProjectModelV7
 
-export generate_starting_values, get_sample_data, solve_model, calculate_ev, calculate_expenditure, calibrate, calculate_gdp, aggregate_data, aggregate_data_legacy, model_container_struct, build_model!, initialize_model!, extract_model!, solve_model!,generate_calibration_inputs, generate_initial_model, run_model!
+export generate_starting_values, get_sample_data, solve_model, calculate_ev, calculate_expenditure, calibrate, calculate_gdp, aggregate_data, aggregate_data_legacy, model_container_struct, build_model!, initialize_model!, extract_model!, solve_model!,generate_calibration_inputs, generate_initial_model, run_model!, rebuild_model!
 
 using NamedArrays, Ipopt, JuMP, JLD2
 import ComputableGeneralEquilibriumHelpers: cde, ces
@@ -49,6 +49,7 @@ include("./get_sample_data.jl")
 
 
 include("./build_model!.jl")
+include("./rebuild_model!.jl")
 include("./extract_model!.jl")
 include("./initialize_model!.jl")
 include("./solve_model!.jl")

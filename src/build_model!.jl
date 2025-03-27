@@ -23,7 +23,7 @@ Nothing but it modifies the `mc` object, adding on the existing `model` element
 build_model!(mc)
 `
 """
-function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
+function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, calibration=true)
     # Structural parameters (some CES/CET options are not happening)
     δ_evfp = .!isnan.(mc.data["α_qfe"]) .&& mc.data["α_qfe"] .!= 0
     δ_maks = .!isnan.(mc.data["α_qca"]) .&& mc.data["α_qca"] .!= 0
@@ -213,59 +213,65 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             δ[reg]
             ρ[reg]
 
-            # Values
-            vdfp[comm, acts, reg]
-            vmfp[comm, acts, reg]
-            vdpp[comm, reg]
-            vmpp[comm, reg]
-            vdgp[comm, reg]
-            vmgp[comm, reg]
-            vdip[comm, reg]
-            vmip[comm, reg]
-            evfp[endw, acts, reg]
-            evos[endw, acts, reg]
-            vfob[comm, reg, reg]
-            vcif[comm, reg, reg]
-            vst[marg, reg]
-            vtwr[marg, comm, reg, reg]
-            maks[comm, acts, reg]
-            vkb[reg]
-
-            # Parameter constraints
-            ϵ_qintva[acts, reg]
-            ϵ_qfa[acts, reg]
-            ϵ_qfe[acts, reg]
-            ϵ_qfdqfm[comm, acts, reg]
-            ϵ_qga[reg]
-            ϵ_qia[reg]
-            ϵ_qgdqgm[acts, reg]
-            ϵ_qxs[comm, reg]
-            ϵ_qes2[endws, reg]
-            ϵ_qpdqpm[acts, reg]
-            ϵ_qidqim[acts, reg]
-            ϵ_qinv
-            σsave[reg]
-
-            # Shares (helpers to calibrate)
-            σ_vp[comm, reg]
-            σ_vdp[comm, reg]
-            σ_vg[comm, reg]
-            σ_vdg[comm, reg]
-            σ_vi[comm, reg]
-            σ_vdi[comm, reg]
-            σ_vf[comm, acts, reg]
-            σ_vdf[comm, acts, reg]
-            σ_vff[endw, acts, reg]
-            σ_vif[acts, reg]
-            σ_vtwr[marg, comm, reg, reg]
-            σ_qxs[comm, reg, reg]
-            σ_qinv[reg]
-            σ_ρ[reg]
         end
     )
 
-    printstyled(name(all_variables(mc.model)[1397]),color=:red)
-    
+    if calibration
+        @variables(mc.model,
+            begin
+                # Values
+                # vdfp[comm, acts, reg]
+                # vmfp[comm, acts, reg]
+                vdpp[comm, reg]
+                # vmpp[comm, reg]
+                # vdgp[comm, reg]
+                # vmgp[comm, reg]
+                # vdip[comm, reg]
+                # vmip[comm, reg]
+                # evfp[endw, acts, reg]
+                # evos[endw, acts, reg]
+                # vfob[comm, reg, reg]
+                # vcif[comm, reg, reg]
+                # vst[marg, reg]
+                # vtwr[marg, comm, reg, reg]
+                # maks[comm, acts, reg]
+                # vkb[reg]
+
+                # Parameter constraints
+                ϵ_qintva[acts, reg]
+                ϵ_qfa[acts, reg]
+                ϵ_qfe[acts, reg]
+                ϵ_qfdqfm[comm, acts, reg]
+                ϵ_qga[reg]
+                ϵ_qia[reg]
+                ϵ_qgdqgm[acts, reg]
+                ϵ_qxs[comm, reg]
+                ϵ_qes2[endws, reg]
+                ϵ_qpdqpm[acts, reg]
+                ϵ_qidqim[acts, reg]
+                ϵ_qinv
+                σsave[reg]
+
+                # Shares (helpers to calibrate)
+                σ_vp[comm, reg]
+                σ_vdp[comm, reg]
+                σ_vg[comm, reg]
+                σ_vdg[comm, reg]
+                σ_vi[comm, reg]
+                σ_vdi[comm, reg]
+                σ_vf[comm, acts, reg]
+                σ_vdf[comm, acts, reg]
+                σ_vff[endw, acts, reg]
+                σ_vif[acts, reg]
+                σ_vtwr[marg, comm, reg, reg]
+                σ_qxs[comm, reg, reg]
+                σ_qinv[reg]
+                σ_ρ[reg]
+            end
+        )
+    end
+    #printstyled(name(all_variables(mc.model)[1397]), color=:red)
+
 
     # Remove structurally missing variables
     # Remove qfe, qes, pfe, peb, α_qes2, α_qfe, cevos, cevfp if there is no use of the factor
@@ -277,13 +283,15 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
     delete.(mc.model, Array(peb)[.!δ_evfp])
     delete.(mc.model, Array(α_qes2[endws, :, :])[.!δ_evfp[endws, :, :]])
     delete.(mc.model, Array(α_qfe)[.!δ_evfp])
-    delete.(mc.model, Array(evos)[.!δ_evfp])
-    delete.(mc.model, Array(evfp)[.!δ_evfp])
-    delete.(mc.model, Array(σ_vff)[.!δ_evfp])
+    #delete.(mc.model, Array(evos)[.!δ_evfp])
+    #delete.(mc.model, Array(evfp)[.!δ_evfp])
+    if calibration
+        delete.(mc.model, Array(σ_vff)[.!δ_evfp])
+    end
 
     # Remove maks when there is no output produced
     printstyled("Removing missing cross output\n", color=:yellow)
-    delete.(mc.model, Array(maks)[.!δ_maks])
+    #delete.(mc.model, Array(maks)[.!δ_maks])
     delete.(mc.model, Array(ps)[.!δ_maks])
     delete.(mc.model, Array(qca)[.!δ_maks])
     delete.(mc.model, Array(pca)[.!δ_maks])
@@ -297,16 +305,20 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
     delete.(mc.model, Array(pcif)[.!δ_qxs])
     delete.(mc.model, Array(pfob)[.!δ_qxs])
     delete.(mc.model, Array(ptrans)[.!δ_qxs.||.!δ_vtwr_sum])
-    delete.(mc.model, Array(vcif)[.!δ_qxs])
-    delete.(mc.model, Array(vfob)[.!δ_qxs])
-   delete.(mc.model, Array(σ_qxs)[.!δ_qxs])
+    #delete.(mc.model, Array(vcif)[.!δ_qxs])
+    #delete.(mc.model, Array(vfob)[.!δ_qxs])
+    if calibration
+        delete.(mc.model, Array(σ_qxs)[.!δ_qxs])
+    end
 
     # Remove margins when no margins are allowed
     printstyled("Removing missing margins\n", color=:yellow)
     delete.(mc.model, Array(qtmfsd)[.!δ_vtwr])
-    delete.(mc.model, Array(σ_vtwr)[.!δ_vtwr])
+    if calibration
+        delete.(mc.model, Array(σ_vtwr)[.!δ_vtwr])
+    end
     delete.(mc.model, Array(α_qtmfsd)[.!δ_vtwr])
-    delete.(mc.model, Array(vtwr)[.!δ_vtwr])
+    #delete.(mc.model, Array(vtwr)[.!δ_vtwr])
 
     # Remove government consumption if not present
     printstyled("Removing missing government spending\n", color=:yellow)
@@ -317,17 +329,19 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
     delete.(mc.model, Array(pgm)[.!δ_qga])
     delete.(mc.model, Array(qgd)[.!δ_qga])
     delete.(mc.model, Array(pgd)[.!δ_qga])
-    delete.(mc.model, Array(α_qgdqgm["dom",:,:])[.!δ_qga])
-    delete.(mc.model, Array(α_qgdqgm["imp",:,:])[.!δ_qga])
-    delete.(mc.model, Array(γ_qgdqgm[:,:])[.!δ_qga])
-   delete.(mc.model, Array(σ_vdg)[.!δ_qga])
-   delete.(mc.model, Array(σ_vg)[.!δ_qga])
-   delete.(mc.model, Array(ϵ_qgdqgm)[.!δ_qga])
+    delete.(mc.model, Array(α_qgdqgm["dom", :, :])[.!δ_qga])
+    delete.(mc.model, Array(α_qgdqgm["imp", :, :])[.!δ_qga])
+    delete.(mc.model, Array(γ_qgdqgm[:, :])[.!δ_qga])
+    if calibration
+        delete.(mc.model, Array(σ_vdg)[.!δ_qga])
+        delete.(mc.model, Array(σ_vg)[.!δ_qga])
+        delete.(mc.model, Array(ϵ_qgdqgm)[.!δ_qga])
+    end
     delete.(mc.model, Array(tgm)[.!δ_qga])
     delete.(mc.model, Array(tgd)[.!δ_qga])
-    delete.(mc.model, Array(vdgp)[.!δ_qga])
-    delete.(mc.model, Array(vmgp)[.!δ_qga])
-    
+    #delete.(mc.model, Array(vdgp)[.!δ_qga])
+    #delete.(mc.model, Array(vmgp)[.!δ_qga])
+
     # Remove investment consumption if not present
     printstyled("Removing missing investment spending\n", color=:yellow)
     delete.(mc.model, Array(qia)[.!δ_qia])
@@ -337,37 +351,41 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
     delete.(mc.model, Array(pim)[.!δ_qia])
     delete.(mc.model, Array(qid)[.!δ_qia])
     delete.(mc.model, Array(pid)[.!δ_qia])
-    delete.(mc.model, Array(α_qidqim["dom",:,:])[.!δ_qia])
-    delete.(mc.model, Array(α_qidqim["imp",:,:])[.!δ_qia])
-    delete.(mc.model, Array(γ_qidqim[:,:])[.!δ_qia])
-    delete.(mc.model, Array(σ_vdi)[.!δ_qia])
-    delete.(mc.model, Array(σ_vi)[.!δ_qia])
-    delete.(mc.model, Array(ϵ_qidqim)[.!δ_qia])
+    delete.(mc.model, Array(α_qidqim["dom", :, :])[.!δ_qia])
+    delete.(mc.model, Array(α_qidqim["imp", :, :])[.!δ_qia])
+    delete.(mc.model, Array(γ_qidqim[:, :])[.!δ_qia])
+    if calibration
+        delete.(mc.model, Array(σ_vdi)[.!δ_qia])
+        delete.(mc.model, Array(σ_vi)[.!δ_qia])
+        delete.(mc.model, Array(ϵ_qidqim)[.!δ_qia])
+    end
     delete.(mc.model, Array(tim)[.!δ_qia])
     delete.(mc.model, Array(tid)[.!δ_qia])
-    delete.(mc.model, Array(vdip)[.!δ_qia])
-    delete.(mc.model, Array(vmip)[.!δ_qia])
+    #delete.(mc.model, Array(vdip)[.!δ_qia])
+    #delete.(mc.model, Array(vmip)[.!δ_qia])
 
 
-        # Remove investment consumption if not present
-        printstyled("Removing missing firm spending\n", color=:yellow)
-        delete.(mc.model, Array(qfa)[.!δ_qfa])
-        delete.(mc.model, Array(pfa)[.!δ_qfa])
-        delete.(mc.model, Array(α_qfa)[.!δ_qfa])
-        delete.(mc.model, Array(qfm)[.!δ_qfa])
-        delete.(mc.model, Array(pfm)[.!δ_qfa])
-        delete.(mc.model, Array(qfd)[.!δ_qfa])
-        delete.(mc.model, Array(pfd)[.!δ_qfa])
-        delete.(mc.model, Array(α_qfdqfm["dom",:,:,:])[.!δ_qfa])
-        delete.(mc.model, Array(α_qfdqfm["imp",:,:,:])[.!δ_qfa])
-        delete.(mc.model, Array(γ_qfdqfm[:,:,:])[.!δ_qfa])
+    # Remove investment consumption if not present
+    printstyled("Removing missing firm spending\n", color=:yellow)
+    delete.(mc.model, Array(qfa)[.!δ_qfa])
+    delete.(mc.model, Array(pfa)[.!δ_qfa])
+    delete.(mc.model, Array(α_qfa)[.!δ_qfa])
+    delete.(mc.model, Array(qfm)[.!δ_qfa])
+    delete.(mc.model, Array(pfm)[.!δ_qfa])
+    delete.(mc.model, Array(qfd)[.!δ_qfa])
+    delete.(mc.model, Array(pfd)[.!δ_qfa])
+    delete.(mc.model, Array(α_qfdqfm["dom", :, :, :])[.!δ_qfa])
+    delete.(mc.model, Array(α_qfdqfm["imp", :, :, :])[.!δ_qfa])
+    delete.(mc.model, Array(γ_qfdqfm[:, :, :])[.!δ_qfa])
+    if calibration
         delete.(mc.model, Array(σ_vdf)[.!δ_qfa])
         delete.(mc.model, Array(σ_vf)[.!δ_qfa])
         delete.(mc.model, Array(ϵ_qfdqfm)[.!δ_qfa])
-        delete.(mc.model, Array(tfm)[.!δ_qfa])
-        delete.(mc.model, Array(tfd)[.!δ_qfa])
-        delete.(mc.model, Array(vdfp)[.!δ_qfa])
-        delete.(mc.model, Array(vmfp)[.!δ_qfa])
+    end
+    delete.(mc.model, Array(tfm)[.!δ_qfa])
+    delete.(mc.model, Array(tfd)[.!δ_qfa])
+    #delete.(mc.model, Array(vdfp)[.!δ_qfa])
+    #delete.(mc.model, Array(vmfp)[.!δ_qfa])
     # All model equations
     @constraints(mc.model,
         begin
@@ -376,17 +394,17 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             e_qo, log.(qo .* po) .== log.(qva .* pva .+ qint .* pint)
 
             # Firms (second nest)
-            e_qfa[a=acts, r=reg], log.(Vector(qfa[:, a, r])[δ_qfa[:,a, r]]) .== log.(ces(qint[a, r], Vector(pfa[:, a, r])[δ_qfa[:,a,r]], Vector(α_qfa[:, a, r])[δ_qfa[:,a,r]], esubc[a, r], γ_qfa[a, r]))
-            e_pint[a=acts, r=reg], log.(qint[a, r] * pint[a, r]) == log.(sum(Vector(pfa[:, a, r] .* qfa[:, a, r])[δ_qfa[:,a,r]]))
+            e_qfa[a=acts, r=reg], log.(Vector(qfa[:, a, r])[δ_qfa[:, a, r]]) .== log.(ces(qint[a, r], Vector(pfa[:, a, r])[δ_qfa[:, a, r]], Vector(α_qfa[:, a, r])[δ_qfa[:, a, r]], esubc[a, r], γ_qfa[a, r]))
+            e_pint[a=acts, r=reg], log.(qint[a, r] * pint[a, r]) == log.(sum(Vector(pfa[:, a, r] .* qfa[:, a, r])[δ_qfa[:, a, r]]))
             e_qfe[a=acts, r=reg], log.(Vector(qfe[:, a, r])[δ_evfp[:, a, r]]) .== log.(ces(qva[a, r], Vector(pfe[:, a, r])[δ_evfp[:, a, r]], Vector(α_qfe[:, a, r])[δ_evfp[:, a, r]], esubva[a, r], γ_qfe[a, r]))
 
             e_pva[a=acts, r=reg], log.(qva[a, r] * pva[a, r]) == log.(sum(Vector(pfe[:, a, r] .* qfe[:, a, r])[δ_evfp[:, a, r]]))
-            e_qfdqfm[c=comm, a=acts, r=reg; δ_qfa[c,a,r]], log.([qfd[c, a, r], qfm[c, a, r]]) .== log.(ces(qfa[c, a, r], [pfd[c, a, r], pfm[c, a, r]], α_qfdqfm[:, c, a, r], esubd[c, r], γ_qfdqfm[c, a, r]))
-            e_pfa[c=comm, a=acts, r=reg; δ_qfa[c,a,r]], log(pfa[c,a,r] * qfa[c,a,r]) == log(qfd[c,a,r] * pfd[c,a,r] + qfm[c,a,r] * pfm[c,a,r])
+            e_qfdqfm[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log.([qfd[c, a, r], qfm[c, a, r]]) .== log.(ces(qfa[c, a, r], [pfd[c, a, r], pfm[c, a, r]], α_qfdqfm[:, c, a, r], esubd[c, r], γ_qfdqfm[c, a, r]))
+            e_pfa[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log(pfa[c, a, r] * qfa[c, a, r]) == log(qfd[c, a, r] * pfd[c, a, r] + qfm[c, a, r] * pfm[c, a, r])
 
             # Firms (distribution)
             e_qca[a=acts, r=reg], log.(Vector(qca[:, a, r])[δ_maks[:, a, r]]) .== log.(Vector(ces(qo[a, r], Vector(ps[:, a, r])[δ_maks[:, a, r]], Vector(α_qca[:, a, r])[δ_maks[:, a, r]], etraq[a, r], γ_qca[a, r])))
-            e_po[a=acts, r=reg], log.(po[a, r] * qo[a, r]) == log.(sum(Vector(qca[:, a, r] .* ps[:, a, r])[δ_maks[:,a,r]]))
+            e_po[a=acts, r=reg], log.(po[a, r] * qo[a, r]) == log.(sum(Vector(qca[:, a, r] .* ps[:, a, r])[δ_maks[:, a, r]]))
             e_pca[c=comm, r=reg], log.((esubq[c, r] == 0 ? Vector(pca[c, :, r])[δ_maks[c, :, r]] : Vector(qca[c, :, r])[δ_maks[c, :, r]])) .== log.((esubq[c, r] == 0 ? pds[c, r] : Vector(ces(qc[c, r], Vector(pca[c, :, r])[δ_maks[c, :, r]], Vector(α_pca[c, :, r])[δ_maks[c, :, r]], 1 / esubq[c, r], γ_pca[c, r]))))
             e_qc[c=comm, r=reg], log(pds[c, r] * qc[c, r]) == log(sum(Vector(pca[c, :, r] .* qca[c, :, r])[δ_maks[c, :, r]]))
             e_ps[c=comm, a=acts, r=reg; δ_maks[c, a, r]], log(pca[c, a, r]) == log(ps[c, a, r] * to[c, a, r])
@@ -394,25 +412,25 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             # Endowments
             e_peb[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log(qfe[e, a, r]) == log(qes[e, a, r])
             e_pfe[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log(pfe[e, a, r]) == log(peb[e, a, r] * tfe[e, a, r])
-            e_pfactor[r=reg], log(pfactor[r] * sum(Array(qfe[:, :, r])[δ_evfp[:,:,r]])) == log(sum(Array(qfe[:, :, r] .* peb[:, :, r])[δ_evfp[:,:,r]]))
+            e_pfactor[r=reg], log(pfactor[r] * sum(Array(qfe[:, :, r])[δ_evfp[:, :, r]])) == log(sum(Array(qfe[:, :, r] .* peb[:, :, r])[δ_evfp[:, :, r]]))
 
             # Income
-            e_fincome[r=reg], log(fincome[r]) == log(sum(Array(peb[:, :, r] .* qes[:, :, r])[δ_evfp[:,:,r]]) .- δ[r] .* pinv[r] .* kb[r])
+            e_fincome[r=reg], log(fincome[r]) == log(sum(Array(peb[:, :, r] .* qes[:, :, r])[δ_evfp[:, :, r]]) .- δ[r] .* pinv[r] .* kb[r])
             e_y[r=reg], log(y[r]) ==
                         log(
                 fincome[r] +
                 sum(qpd[:, r] .* pds[:, r] .* (tpd[:, r] .- 1)) +
                 sum(qpm[:, r] .* pms[:, r] .* (tpm[:, r] .- 1)) +
-                sum(Vector(qgd[:, r] .* pds[:, r] .* (tgd[:, r] .- 1))[δ_qga[:,r]]) +
-                sum(Vector(qgm[:, r] .* pms[:, r] .* (tgm[:, r] .- 1))[δ_qga[:,r]]) +
-                sum(Vector(qid[:, r] .* pds[:, r] .* (tid[:, r] .- 1))[δ_qia[:,r]]) +
-                sum(Vector(qim[:, r] .* pms[:, r] .* (tim[:, r] .- 1))[δ_qia[:,r]]) +
-                sum(Array(qfd[:, :, r] .* pfd[:, :, r] ./ tfd[:, :, r] .* (tfd[:, :, r] .- 1))[δ_qfa[:,:,r]]) +
-                sum(Array(qfm[:, :, r] .* pfm[:, :, r] ./ tfm[:, :, r] .* (tfm[:, :, r] .- 1))[δ_qfa[:,:,r]]) +
-                sum(Array(qca[:, :, r] .* ps[:, :, r] .* (to[:, :, r] .- 1))[δ_maks[:,:,r]]) +
+                sum(Vector(qgd[:, r] .* pds[:, r] .* (tgd[:, r] .- 1))[δ_qga[:, r]]) +
+                sum(Vector(qgm[:, r] .* pms[:, r] .* (tgm[:, r] .- 1))[δ_qga[:, r]]) +
+                sum(Vector(qid[:, r] .* pds[:, r] .* (tid[:, r] .- 1))[δ_qia[:, r]]) +
+                sum(Vector(qim[:, r] .* pms[:, r] .* (tim[:, r] .- 1))[δ_qia[:, r]]) +
+                sum(Array(qfd[:, :, r] .* pfd[:, :, r] ./ tfd[:, :, r] .* (tfd[:, :, r] .- 1))[δ_qfa[:, :, r]]) +
+                sum(Array(qfm[:, :, r] .* pfm[:, :, r] ./ tfm[:, :, r] .* (tfm[:, :, r] .- 1))[δ_qfa[:, :, r]]) +
+                sum(Array(qca[:, :, r] .* ps[:, :, r] .* (to[:, :, r] .- 1))[δ_maks[:, :, r]]) +
                 sum(Array(qfe[:, :, r] .* peb[:, :, r] .* (tfe[:, :, r] .- 1))[δ_evfp[:, :, r]]) +
-                sum(Array(qxs[:, r, :] .* pfob[:, r, :] ./ txs[:, r, :] .* (txs[:, r, :] .- 1))[δ_qxs[:,r,:]]) +
-                sum(Array(qxs[:, :, r] .* pcif[:, :, r] .* (tms[:, :, r] .- 1))[δ_qxs[:,:,r]])
+                sum(Array(qxs[:, r, :] .* pfob[:, r, :] ./ txs[:, r, :] .* (txs[:, r, :] .- 1))[δ_qxs[:, r, :]]) +
+                sum(Array(qxs[:, :, r] .* pcif[:, :, r] .* (tms[:, :, r] .- 1))[δ_qxs[:, :, r]])
             )
 
             # Utility
@@ -436,7 +454,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
 
             # Government expenditure
             e_qga[c=comm, r=reg; δ_qga[c, r]], log(pga[c, r] * qga[c, r]) == log(yg[r] * α_qga[c, r]) ##This one
-            e_pgov[r=reg], log(pgov[r] * sum(Vector(qga[:, r])[δ_qga[:,r]])) == log(sum(Vector(qga[:, r] .* pga[:, r])[δ_qga[:,r]]))
+            e_pgov[r=reg], log(pgov[r] * sum(Vector(qga[:, r])[δ_qga[:, r]])) == log(sum(Vector(qga[:, r] .* pga[:, r])[δ_qga[:, r]]))
             e_qgdqgm[c=comm, r=reg; δ_qga[c, r]], log.([qgd[c, r], qgm[c, r]]) .== log.(ces(qga[c, r], [pgd[c, r], pgm[c, r]], α_qgdqgm[:, c, r], esubd[c, r], γ_qgdqgm[c, r]))
             e_pga[c=comm, r=reg; δ_qga[c, r]], log.(qga[c, r] .* pga[c, r]) .== log.(pgd[c, r] .* qgd[c, r] .+ pgm[c, r] .* qgm[c, r])
 
@@ -444,21 +462,21 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             e_qsave, log.(y .* uelas) .== log.(σyp .* y .* uelas .+ σyg .* y .* uelas .+ psave .* qsave)
 
             # Investment consumption
-            e_qia[r=reg], log.(Vector(qia[:, r])[δ_qia[:,r]]) .== log.(ces(qinv[r], Vector(pia[:, r])[δ_qia[:,r]], Vector(α_qia[:, r])[δ_qia[:,r]], 0, γ_qia[r]))
-            e_pinv[r=reg], log.(pinv[r] * sum(Vector(qia[:, r])[δ_qia[:,r]])) == log.(sum(Vector(pia[:, r] .* qia[:, r])[δ_qia[:,r]]))
-            e_qidqim[c=comm, r=reg;δ_qia[c,r]], log.([qid[c, r], qim[c, r]]) .== log.(ces(qia[c, r], [pid[c, r], pim[c, r]], Vector(α_qidqim[:, c, r]), esubd[c, r], γ_qidqim[c, r]))
-            e_pia[c=comm, r =reg;δ_qia[c,r]], log(pia[c,r] .* qia[c,r]) == log(pid[c,r] * qid[c,r] + pim[c,r] * qim[c,r])
+            e_qia[r=reg], log.(Vector(qia[:, r])[δ_qia[:, r]]) .== log.(ces(qinv[r], Vector(pia[:, r])[δ_qia[:, r]], Vector(α_qia[:, r])[δ_qia[:, r]], 0, γ_qia[r]))
+            e_pinv[r=reg], log.(pinv[r] * sum(Vector(qia[:, r])[δ_qia[:, r]])) == log.(sum(Vector(pia[:, r] .* qia[:, r])[δ_qia[:, r]]))
+            e_qidqim[c=comm, r=reg; δ_qia[c, r]], log.([qid[c, r], qim[c, r]]) .== log.(ces(qia[c, r], [pid[c, r], pim[c, r]], Vector(α_qidqim[:, c, r]), esubd[c, r], γ_qidqim[c, r]))
+            e_pia[c=comm, r=reg; δ_qia[c, r]], log(pia[c, r] .* qia[c, r]) == log(pid[c, r] * qid[c, r] + pim[c, r] * qim[c, r])
             e_psave[r=reg], log(psave[r]) == log(pinv[r] + sum(((qinv .- δ .* kb) .- qsave) .* pinv ./ sum(qinv .- δ .* kb)))
 
             # Trade - exports
-            e_qms[c=comm, r=reg], log.(qms[c, r]) == log.(sum(Vector(qfm[c, :, r])[δ_qfa[c,:,r]]) + qpm[c, r] + (δ_qga[c,r] ? qgm[c, r] : 0 ) + (δ_qia[c,r] ? qim[c, r] : 0 ))
-             e_qxs[c=comm, r=reg], log.(Array(qxs[c, :, r])[δ_qxs[c, :, r]]) .== log.(ces(qms[c, r], Vector(pmds[c, :, r])[δ_qxs[c, :, r]], Vector(α_qxs[c, :, r])[δ_qxs[c, :, r]], esubm[c, r], γ_qxs[c, r]))
-            e_pms[c=comm, r=reg], log(pms[c, r] * qms[c, r]) == log(sum(Vector(pmds[c, :, r] .* qxs[c, :, r])[δ_qxs[c,:,r]]))
+            e_qms[c=comm, r=reg], log.(qms[c, r]) == log.(sum(Vector(qfm[c, :, r])[δ_qfa[c, :, r]]) + qpm[c, r] + (δ_qga[c, r] ? qgm[c, r] : 0) + (δ_qia[c, r] ? qim[c, r] : 0))
+            e_qxs[c=comm, r=reg], log.(Array(qxs[c, :, r])[δ_qxs[c, :, r]]) .== log.(ces(qms[c, r], Vector(pmds[c, :, r])[δ_qxs[c, :, r]], Vector(α_qxs[c, :, r])[δ_qxs[c, :, r]], esubm[c, r], γ_qxs[c, r]))
+            e_pms[c=comm, r=reg], log(pms[c, r] * qms[c, r]) == log(sum(Vector(pmds[c, :, r] .* qxs[c, :, r])[δ_qxs[c, :, r]]))
 
             # Trade - margins
             e_qtmfsd[m=marg, c=comm, s=reg, d=reg; δ_vtwr[m, c, s, d]], log(qtmfsd[m, c, s, d]) == log(α_qtmfsd[m, c, s, d] * qxs[c, s, d])
-            e_ptrans[c=comm, s=reg, d=reg; δ_vtwr_sum[c, s, d]], log(ptrans[c, s, d] * sum(Array(qtmfsd[:, c, s, d])[δ_vtwr[:,c,s,d]])) == log(sum(Array(qtmfsd[:, c, s, d] .* pt[:])[δ_vtwr[:,c,s,d]]))
-            e_qtm[m=marg], log(qtm[m]) == log(sum(Array(qtmfsd[m, :, :, :])[δ_vtwr[m,:,:,:]]))
+            e_ptrans[c=comm, s=reg, d=reg; δ_vtwr_sum[c, s, d]], log(ptrans[c, s, d] * sum(Array(qtmfsd[:, c, s, d])[δ_vtwr[:, c, s, d]])) == log(sum(Array(qtmfsd[:, c, s, d] .* pt[:])[δ_vtwr[:, c, s, d]]))
+            e_qtm[m=marg], log(qtm[m]) == log(sum(Array(qtmfsd[m, :, :, :])[δ_vtwr[m, :, :, :]]))
             e_qst[m=marg], log.(qst[m, :]) .== log.(ces(qtm[m], pds[m, :], Vector(α_qst[m, :]), esubs[m], γ_qst[m]))
             e_pt[m=marg], log.(pt[m] * qtm[m]) == log.(sum(pds[m, :] .* qst[m, :]))
 
@@ -468,12 +486,12 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             e_pmds[c=comm, s=reg, d=reg; δ_qxs[c, s, d]], log(pmds[c, s, d]) == log(pcif[c, s, d] * tm[c, d] * tms[c, s, d])
 
             # Domestic market clearing 
-            e_qds[c=comm, r=reg], log(qds[c, r]) == log(sum(Vector(qfd[c, :, r])[δ_qfa[c,:,r]]) + qpd[c, r] + (δ_qga[c,r] ? qgd[c, r] : 0) + (δ_qia[c,r] ? qid[c, r] : 0 ))
-            e_pds[c=comm, r=reg], log(qc[c, r]) == log(qds[c, r] + sum(Vector(qxs[c, r, :])[δ_qxs[c,r,:]]) + (c ∈ marg ? qst[c, r] : 0))
+            e_qds[c=comm, r=reg], log(qds[c, r]) == log(sum(Vector(qfd[c, :, r])[δ_qfa[c, :, r]]) + qpd[c, r] + (δ_qga[c, r] ? qgd[c, r] : 0) + (δ_qia[c, r] ? qid[c, r] : 0))
+            e_pds[c=comm, r=reg], log(qc[c, r]) == log(qds[c, r] + sum(Vector(qxs[c, r, :])[δ_qxs[c, r, :]]) + (c ∈ marg ? qst[c, r] : 0))
 
             # Taxes
-            e_pfd[c=comm, a=acts, r=reg; δ_qfa[c, a,r]], log(pfd[c, a, r]) == log(pds[c, r] * tfd[c, a, r])
-            e_pfm[c=comm, a=acts, r=reg; δ_qfa[c, a,r]], log(pfm[c, a, r]) == log(pms[c, r] * tfm[c, a, r])
+            e_pfd[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log(pfd[c, a, r]) == log(pds[c, r] * tfd[c, a, r])
+            e_pfm[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log(pfm[c, a, r]) == log(pms[c, r] * tfm[c, a, r])
             e_ppd, log.(ppd) .== log.(pds .* tpd)
             e_ppm, log.(ppm) .== log.(pms .* tpm)
             e_pgd[c=comm, r=reg; δ_qga[c, r]], log(pgd[c, r]) == log(pds[c, r] * tgd[c, r])
@@ -485,7 +503,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             e_pe1[e=endwm, r=reg], log.(qe[e, r]) == log.(sum(qfe[e, :, r]))
             e_qes1[e=endwm, a=acts, r=reg], log(pes[e, a, r]) == log(pe[e, r])
             e_qes2[e=endws, r=reg], log.(Vector(qes[e, :, r])[δ_evfp[e, :, r]]) .== log.(Vector(ces(qe[e, r], Vector(pes[e, :, r])[δ_evfp[e, :, r]], Vector(α_qes2[e, :, r])[δ_evfp[e, :, r]], etrae[e, r], γ_qes2[e, r])))
-            e_pe2[e=endws, r=reg], log(pe[e, r] * qe[e, r]) == log(sum(Vector(pes[e, :, r] .* qes[e, :, r])[δ_evfp[e,:,r]]))
+            e_pe2[e=endws, r=reg], log(pe[e, r] * qe[e, r]) == log(sum(Vector(pes[e, :, r] .* qes[e, :, r])[δ_evfp[e, :, r]]))
             e_qes3[e=endwf, a=acts, r=reg; δ_evfp[e, a, r]], log(qes[e, a, r]) == log(qesf[e, a, r])
             e_pes[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log(peb[e, a, r]) == log(pes[e, a, r] * tinc[e, a, r])
 
@@ -502,59 +520,66 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15)
             e_kb[r=reg], log(ρ[r] * kb[r]) == log(sum(qe[endwc, r]))
             e_ke, log.(ke) .== log.(qinv .+ (1 .- δ) .* kb)
 
-            # Values
-            cvdfp[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log(vdfp[c,a,r]) == log(pfd[c,a,r] * qfd[c,a,r])
-            cvmfp[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log(vmfp[c,a,r]) == log(pfm[c,a,r] * qfm[c,a,r])
-            cvdpp, log.(vdpp) .== log.(ppd .* qpd)
-            cvmpp, log.(vmpp) .== log.(ppm .* qpm)
-            cvdgp[c=comm, r=reg; δ_qga[c, r]], log(vdgp[c, r]) == log(pgd[c, r] * qgd[c, r])
-            cvmgp[c=comm, r=reg; δ_qga[c, r]], log(vmgp[c, r]) == log(pgm[c, r] * qgm[c, r])
-            cvdip[c=comm, r=reg; δ_qia[c, r]], log(vdip[c, r]) .== log(pid[c, r] * qid[c, r])
-            cvmip[c=comm, r=reg; δ_qia[c, r]], log(vmip[c, r]) .== log(pim[c, r] * qim[c, r])
-            cevfp[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log.(evfp[e, a, r]) == log(pfe[e, a, r] * qfe[e, a, r])
-            cevos[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log(evos[e, a, r]) == log(pes[e, a, r] * qes[e, a, r])
-            cvfob[c=comm, s=reg, d=reg; δ_qxs[c, s, d]], log(vfob[c, s, d]) == log(pfob[c, s, d] * qxs[c, s, d])
-            cvcif[c=comm, s=reg, d=reg; δ_qxs[c, s, d]], log(vcif[c, s, d]) == log(pcif[c, s, d] * qxs[c, s, d])
-            cvst[m=marg], log.(vst[m, :]) .== log.(pds[m, :] .* qst[m, :])
-            cvtwr[m=marg, c=comm, s=reg, d=reg; δ_vtwr[m, c, s, d]], log(vtwr[m, c, s, d]) == log.(pt[m] * qtmfsd[m, c, s, d])
-            cmaks[c=comm, a=acts, r=reg; δ_maks[c, a, r]], log(maks[c, a, r]) == log(ps[c, a, r] * qca[c, a, r])
-            cvkb, log.(vkb) .== log.(kb .* pinv)
-
-            # Soft parameter constraints
-            sf_α_qxs[c=comm, d=reg], log(sum(Vector(α_qxs[c, :, d])[δ_qxs[c,:,d]])) == log(ϵ_qxs[c, d])
-            sf_α_qfe[a=acts, r=reg], log(sum(Vector(α_qfe[:, a, r])[δ_evfp[:,a,r]])) == log(ϵ_qfe[a, r])
-            sf_α_qes2[e=endws, r=reg], log(sum(Vector(α_qes2[e, :, r])[δ_evfp[e,:,r]])) == log(ϵ_qes2[e, r])
-            sf_α_qfdqfm[c=comm, a=acts, r=reg; δ_qfa[c,a,r]], log(sum(α_qfdqfm[:, c, a, r])) == log(ϵ_qfdqfm[c, a, r])
-            sf_α_qpdqpm[c=comm, r=reg], log(sum(α_qpdqpm[:, c, r])) == log(ϵ_qpdqpm[c, r])
-            sf_α_qgdqgm[c=comm, r=reg; δ_qga[c, r]], log(sum(α_qgdqgm[:, c, r])) == log(ϵ_qgdqgm[c, r])
-            sf_α_qidqim[c=comm, r=reg; δ_qia[c, r]], log(sum(α_qidqim[:, c, r])) == log(ϵ_qidqim[c, r])
-            sf_α_qia[r=reg], log(sum(Vector(α_qia[:, r])[δ_qia[:,r]])) == log(ϵ_qia[r])
-            sf_α_qga[r=reg], log(sum(Vector(α_qga[:, r])[δ_qga[:,r]])) == log(ϵ_qga[r])
-            sf_α_qfa[a=acts, r=reg], log(sum(Vector(α_qfa[:, a, r])[δ_qfa[:,a,r]])) == log(ϵ_qfa[a, r])
-            sf_α_qintva[a=acts, r=reg], log(sum(α_qintva[["int", "va"], a, r])) == log(ϵ_qintva[a, r])
-            sf_α_qinv, log(sum(α_qinv)) == log(ϵ_qinv)
-            sf_save, log.(σsave .+ σyp .+ σyg) .== log(1)
-
-            # Shares (helpers)
-            e_σ_vp[c=comm, r=reg], log(σ_vp[c, r]) + log(sum(ppd[:, r] .* qpd[:, r] .+ ppm[:, r] .* qpm[:, r])) == log(ppd[c, r] .* qpd[c, r] + ppm[c, r] .* qpm[c, r])
-            e_σ_vdp[c=comm, r=reg], log(σ_vdp[c, r]) + log(ppd[c, r] .* qpd[c, r] .+ ppm[c, r] .* qpm[c, r]) == log(ppd[c, r] .* qpd[c, r])
-            e_σ_vg[c=comm, r=reg; δ_qga[c, r]], log(σ_vg[c, r]) + log(sum(Vector(pgd[:, r] .* qgd[:, r] .+ pgm[:, r] .* qgm[:, r])[δ_qga[:,r]])) == log(pgd[c, r] * qgd[c, r] + pgm[c, r] * qgm[c, r])
-            e_σ_vdg[c=comm, r=reg; δ_qga[c, r]], log(σ_vdg[c, r]) + log(pgd[c, r] .* qgd[c, r] .+ pgm[c, r] .* qgm[c, r]) == log(pgd[c, r] .* qgd[c, r])
-            e_σ_vi[c=comm, r=reg; δ_qia[c, r]], log(σ_vi[c, r]) + log(sum(Vector(pid[:, r] .* qid[:, r] .+ pim[:, r] .* qim[:, r])[δ_qia[:,r]])) == log(pid[c, r] * qid[c, r] + pim[c, r] * qim[c, r])
-            e_σ_vdi[c=comm, r=reg; δ_qia[c, r]], log(σ_vdi[c, r]) + log(pid[c, r] .* qid[c, r] .+ pim[c, r] .* qim[c, r]) == log(pid[c, r] .* qid[c, r])
-            e_σ_vf[c=comm, a=acts, r=reg;δ_qfa[c,a,r]], log(σ_vf[c, a, r]) + log(sum(Vector(pfd[:, a, r] .* qfd[:, a, r] .+ pfm[:, a, r] .* qfm[:, a, r])[δ_qfa[:,a,r]])) == log(pfd[c, a, r] .* qfd[c, a, r] + pfm[c, a, r] .* qfm[c, a, r])
-            e_σ_vdf[c=comm, a=acts, r=reg;δ_qfa[c,a,r]], log(σ_vdf[c, a, r]) + log(pfd[c, a, r] .* qfd[c, a, r] .+ pfm[c, a, r] .* qfm[c, a, r]) == log(pfd[c, a, r] .* qfd[c, a, r])
-            e_σ_vif[a=acts, r=reg], log(σ_vif[a, r]) + log(pva[a, r] * qva[a, r] + pint[a, r] * qint[a, r]) == log(pint[a, r] * qint[a, r])
-            e_σ_vff[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log(σ_vff[e, a, r]) + log(sum(Vector(pfe[:, a, r] .* qfe[:, a, r])[δ_evfp[:,a,r]])) == log(pfe[e, a, r] * qfe[e, a, r])
-            e_σ_vtwr[m=marg, c=comm, s=reg, d=reg; δ_vtwr[m, c, s, d]], log(σ_vtwr[m, c, s, d]) + log(pcif[c, s, d] * qxs[c, s, d]) == log(pt[m] * qtmfsd[m, c, s, d])
-            e_σ_qxs[c=comm, s=reg, d=reg; δ_qxs[c, s, d]], log(σ_qxs[c, s, d]) + log(sum(Vector(pcif[c, :, d] .* qxs[c, :, d])[δ_qxs[c,:,d]])) == log(pcif[c, s, d] .* qxs[c, s, d])
-
-            e_σ_qinv[r=reg], σ_qinv[r] == psave[r] * qsave[r] / sum(psave .* qsave)
-            e_σ_ρ[r=reg], log((kb[r] * pinv[r]) * σ_ρ[r]) == log(sum(Array(pes[:, :, r] .* qes[:, :, r])[δ_evfp[:,:,r]]))
         end
     )
+    if calibration
 
-   
+        @constraints(mc.model,
+            begin
+
+                # Values
+                # cvdfp[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log(vdfp[c, a, r]) == log(pfd[c, a, r] * qfd[c, a, r])
+                # cvmfp[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log(vmfp[c, a, r]) == log(pfm[c, a, r] * qfm[c, a, r])
+                cvdpp, log.(vdpp) .== log.(ppd .* qpd)
+                # cvmpp, log.(vmpp) .== log.(ppm .* qpm)
+                # cvdgp[c=comm, r=reg; δ_qga[c, r]], log(vdgp[c, r]) == log(pgd[c, r] * qgd[c, r])
+                # cvmgp[c=comm, r=reg; δ_qga[c, r]], log(vmgp[c, r]) == log(pgm[c, r] * qgm[c, r])
+                # cvdip[c=comm, r=reg; δ_qia[c, r]], log(vdip[c, r]) .== log(pid[c, r] * qid[c, r])
+                # cvmip[c=comm, r=reg; δ_qia[c, r]], log(vmip[c, r]) .== log(pim[c, r] * qim[c, r])
+                # cevfp[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log.(evfp[e, a, r]) == log(pfe[e, a, r] * qfe[e, a, r])
+                # cevos[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log(evos[e, a, r]) == log(pes[e, a, r] * qes[e, a, r])
+                # cvfob[c=comm, s=reg, d=reg; δ_qxs[c, s, d]], log(vfob[c, s, d]) == log(pfob[c, s, d] * qxs[c, s, d])
+                # cvcif[c=comm, s=reg, d=reg; δ_qxs[c, s, d]], log(vcif[c, s, d]) == log(pcif[c, s, d] * qxs[c, s, d])
+                # cvst[m=marg], log.(vst[m, :]) .== log.(pds[m, :] .* qst[m, :])
+                # cvtwr[m=marg, c=comm, s=reg, d=reg; δ_vtwr[m, c, s, d]], log(vtwr[m, c, s, d]) == log.(pt[m] * qtmfsd[m, c, s, d])
+                # cmaks[c=comm, a=acts, r=reg; δ_maks[c, a, r]], log(maks[c, a, r]) == log(ps[c, a, r] * qca[c, a, r])
+                # cvkb, log.(vkb) .== log.(kb .* pinv)
+
+                # Soft parameter constraints
+                sf_α_qxs[c=comm, d=reg], log(sum(Vector(α_qxs[c, :, d])[δ_qxs[c, :, d]])) == log(ϵ_qxs[c, d])
+                sf_α_qfe[a=acts, r=reg], log(sum(Vector(α_qfe[:, a, r])[δ_evfp[:, a, r]])) == log(ϵ_qfe[a, r])
+                sf_α_qes2[e=endws, r=reg], log(sum(Vector(α_qes2[e, :, r])[δ_evfp[e, :, r]])) == log(ϵ_qes2[e, r])
+                sf_α_qfdqfm[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log(sum(α_qfdqfm[:, c, a, r])) == log(ϵ_qfdqfm[c, a, r])
+                sf_α_qpdqpm[c=comm, r=reg], log(sum(α_qpdqpm[:, c, r])) == log(ϵ_qpdqpm[c, r])
+                sf_α_qgdqgm[c=comm, r=reg; δ_qga[c, r]], log(sum(α_qgdqgm[:, c, r])) == log(ϵ_qgdqgm[c, r])
+                sf_α_qidqim[c=comm, r=reg; δ_qia[c, r]], log(sum(α_qidqim[:, c, r])) == log(ϵ_qidqim[c, r])
+                sf_α_qia[r=reg], log(sum(Vector(α_qia[:, r])[δ_qia[:, r]])) == log(ϵ_qia[r])
+                sf_α_qga[r=reg], log(sum(Vector(α_qga[:, r])[δ_qga[:, r]])) == log(ϵ_qga[r])
+                sf_α_qfa[a=acts, r=reg], log(sum(Vector(α_qfa[:, a, r])[δ_qfa[:, a, r]])) == log(ϵ_qfa[a, r])
+                sf_α_qintva[a=acts, r=reg], log(sum(α_qintva[["int", "va"], a, r])) == log(ϵ_qintva[a, r])
+                sf_α_qinv, log(sum(α_qinv)) == log(ϵ_qinv)
+                sf_save, log.(σsave .+ σyp .+ σyg) .== log(1)
+
+                # Shares (helpers)
+                e_σ_vp[c=comm, r=reg], log(σ_vp[c, r]) + log(sum(ppd[:, r] .* qpd[:, r] .+ ppm[:, r] .* qpm[:, r])) == log(ppd[c, r] .* qpd[c, r] + ppm[c, r] .* qpm[c, r])
+                e_σ_vdp[c=comm, r=reg], log(σ_vdp[c, r]) + log(ppd[c, r] .* qpd[c, r] .+ ppm[c, r] .* qpm[c, r]) == log(ppd[c, r] .* qpd[c, r])
+                e_σ_vg[c=comm, r=reg; δ_qga[c, r]], log(σ_vg[c, r]) + log(sum(Vector(pgd[:, r] .* qgd[:, r] .+ pgm[:, r] .* qgm[:, r])[δ_qga[:, r]])) == log(pgd[c, r] * qgd[c, r] + pgm[c, r] * qgm[c, r])
+                e_σ_vdg[c=comm, r=reg; δ_qga[c, r]], log(σ_vdg[c, r]) + log(pgd[c, r] .* qgd[c, r] .+ pgm[c, r] .* qgm[c, r]) == log(pgd[c, r] .* qgd[c, r])
+                e_σ_vi[c=comm, r=reg; δ_qia[c, r]], log(σ_vi[c, r]) + log(sum(Vector(pid[:, r] .* qid[:, r] .+ pim[:, r] .* qim[:, r])[δ_qia[:, r]])) == log(pid[c, r] * qid[c, r] + pim[c, r] * qim[c, r])
+                e_σ_vdi[c=comm, r=reg; δ_qia[c, r]], log(σ_vdi[c, r]) + log(pid[c, r] .* qid[c, r] .+ pim[c, r] .* qim[c, r]) == log(pid[c, r] .* qid[c, r])
+                e_σ_vf[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log(σ_vf[c, a, r]) + log(sum(Vector(pfd[:, a, r] .* qfd[:, a, r] .+ pfm[:, a, r] .* qfm[:, a, r])[δ_qfa[:, a, r]])) == log(pfd[c, a, r] .* qfd[c, a, r] + pfm[c, a, r] .* qfm[c, a, r])
+                e_σ_vdf[c=comm, a=acts, r=reg; δ_qfa[c, a, r]], log(σ_vdf[c, a, r]) + log(pfd[c, a, r] .* qfd[c, a, r] .+ pfm[c, a, r] .* qfm[c, a, r]) == log(pfd[c, a, r] .* qfd[c, a, r])
+                e_σ_vif[a=acts, r=reg], log(σ_vif[a, r]) + log(pva[a, r] * qva[a, r] + pint[a, r] * qint[a, r]) == log(pint[a, r] * qint[a, r])
+                e_σ_vff[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log(σ_vff[e, a, r]) + log(sum(Vector(pfe[:, a, r] .* qfe[:, a, r])[δ_evfp[:, a, r]])) == log(pfe[e, a, r] * qfe[e, a, r])
+                e_σ_vtwr[m=marg, c=comm, s=reg, d=reg; δ_vtwr[m, c, s, d]], log(σ_vtwr[m, c, s, d]) + log(pcif[c, s, d] * qxs[c, s, d]) == log(pt[m] * qtmfsd[m, c, s, d])
+                e_σ_qxs[c=comm, s=reg, d=reg; δ_qxs[c, s, d]], log(σ_qxs[c, s, d]) + log(sum(Vector(pcif[c, :, d] .* qxs[c, :, d])[δ_qxs[c, :, d]])) == log(pcif[c, s, d] .* qxs[c, s, d])
+
+                e_σ_qinv[r=reg], σ_qinv[r] == psave[r] * qsave[r] / sum(psave .* qsave)
+                e_σ_ρ[r=reg], log((kb[r] * pinv[r]) * σ_ρ[r]) == log(sum(Array(pes[:, :, r] .* qes[:, :, r])[δ_evfp[:, :, r]]))
+            end
+        )
+
+    end
 
     set_attribute(mc.model, "max_iter", max_iter)
     set_attribute(mc.model, "constr_viol_tol", constr_viol_tol)
