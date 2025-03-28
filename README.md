@@ -124,12 +124,6 @@ mc=generate_initial_model(hSets=hSets, hData=hData, hParameters=hParameters)
 start_data = deepcopy(mc.data)
 ```
 
-# Solve the model with the starting (uncalibrated) data  values
-
-```
-run_model!(mc)
-```
-
 # Calibrate the data and parameters
 
 ```
@@ -150,7 +144,19 @@ run_model!(mc)
 calibrated_data = deepcopy(mc.data)
 ```
 
+# Drop unnecessary equations
 
+The initial model contains equations that are only used for calibration, e.g., equations targeting value shares. These are not necessary to run scenarios and are best removed.
+
+```
+rebuild_model!(mc)
+```
+
+# Bring back the standard closure
+
+```
+mc.fixed = deepcopy(fixed_default)
+```
 
 # Running a scenario (increase power of tariff on crops between MENA and EU by 20 percent)
 
@@ -177,10 +183,10 @@ run_model!(mc)
 
 ```
 ev = calculate_expenditure(
-                    sets=sets, 
+                    sets=mc.sets, 
                     data0=calibrated_data, 
                     data1=mc.data, 
-                    parameters=parameters
+                    parameters=mc.parameters
                   ) .- calibrated_data["y"]
 ```
 
@@ -189,5 +195,5 @@ ev = calculate_expenditure(
 ```
 qgdp1 = calculate_gdp(sets =mc.sets, data0=calibrated_data, data1=mc.data)
 qgdp0 = calculate_gdp(sets =mc.sets, data0=calibrated_data, data1=calibrated_data)
-(qgdp1 ./ qgdp1 .- 1) .* 100
+(qgdp1 ./ qgdp0 .- 1) .* 100
 ```

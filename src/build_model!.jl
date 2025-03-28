@@ -275,7 +275,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
 
     # Remove structurally missing variables
     # Remove qfe, qes, pfe, peb, α_qes2, α_qfe, cevos, cevfp if there is no use of the factor
-    printstyled("Removing missing factor payments\n", color=:yellow)
+    #printstyled("Removing missing factor payments\n", color=:yellow)
     delete.(mc.model, Array(qfe)[.!δ_evfp])
     delete.(mc.model, Array(qes)[.!δ_evfp])
     delete.(mc.model, Array(pes)[.!δ_evfp])
@@ -290,7 +290,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
     end
 
     # Remove maks when there is no output produced
-    printstyled("Removing missing cross output\n", color=:yellow)
+    #printstyled("Removing missing cross output\n", color=:yellow)
     #delete.(mc.model, Array(maks)[.!δ_maks])
     delete.(mc.model, Array(ps)[.!δ_maks])
     delete.(mc.model, Array(qca)[.!δ_maks])
@@ -298,7 +298,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
     delete.(mc.model, Array(α_qca)[.!δ_maks])
 
     # Remove trade when no trade is allowed
-    printstyled("Removing missing trade\n", color=:yellow)
+    #printstyled("Removing missing trade\n", color=:yellow)
     delete.(mc.model, Array(α_qxs)[.!δ_qxs])
     delete.(mc.model, Array(qxs)[.!δ_qxs])
     delete.(mc.model, Array(pmds)[.!δ_qxs])
@@ -312,7 +312,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
     end
 
     # Remove margins when no margins are allowed
-    printstyled("Removing missing margins\n", color=:yellow)
+    #printstyled("Removing missing margins\n", color=:yellow)
     delete.(mc.model, Array(qtmfsd)[.!δ_vtwr])
     if calibration
         delete.(mc.model, Array(σ_vtwr)[.!δ_vtwr])
@@ -321,7 +321,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
     #delete.(mc.model, Array(vtwr)[.!δ_vtwr])
 
     # Remove government consumption if not present
-    printstyled("Removing missing government spending\n", color=:yellow)
+    #printstyled("Removing missing government spending\n", color=:yellow)
     delete.(mc.model, Array(qga)[.!δ_qga])
     delete.(mc.model, Array(pga)[.!δ_qga])
     delete.(mc.model, Array(α_qga)[.!δ_qga])
@@ -343,7 +343,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
     #delete.(mc.model, Array(vmgp)[.!δ_qga])
 
     # Remove investment consumption if not present
-    printstyled("Removing missing investment spending\n", color=:yellow)
+    #printstyled("Removing missing investment spending\n", color=:yellow)
     delete.(mc.model, Array(qia)[.!δ_qia])
     delete.(mc.model, Array(pia)[.!δ_qia])
     delete.(mc.model, Array(α_qia)[.!δ_qia])
@@ -366,7 +366,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
 
 
     # Remove investment consumption if not present
-    printstyled("Removing missing firm spending\n", color=:yellow)
+    #printstyled("Removing missing firm spending\n", color=:yellow)
     delete.(mc.model, Array(qfa)[.!δ_qfa])
     delete.(mc.model, Array(pfa)[.!δ_qfa])
     delete.(mc.model, Array(α_qfa)[.!δ_qfa])
