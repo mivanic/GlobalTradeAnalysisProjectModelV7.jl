@@ -99,13 +99,15 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
     (α_qca, γ_qca) = ces_parameters(sigma, sigma_expanded, prices, quantities, output)
 
 
-    prices = pca
-    quantities = qca
+    prices = permutedims(pca,[2,1,3])
+    quantities = permutedims(qca,[2,1,3])
     sigma = 1 ./ esubq
     sigma_expanded = permutedims(repeat(sigma, inner=[1, 1, size(quantities, 1)]), [3, 1, 2])
     output = qc
 
-    (α_pca, γ_pca) = ces_parameters(sigma, sigma_expanded, prices, quantities, output)
+    (α_pca_, γ_pca) = ces_parameters(sigma, sigma_expanded, prices, quantities, output)
+
+    α_pca = permutedims(α_pca_,[2,1,3])
 
     σyp = yp ./ y
     σyg = yg ./ y

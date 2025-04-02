@@ -26,10 +26,12 @@ function generate_calibration_inputs(model_container, start_data)
     fixed["σ_qxs"] = NamedArray(trues(size(data["σ_qxs"])), names(data["σ_qxs"]))
     for r ∈ sets["reg"]
         for c ∈ sets["comm"]
-            mr = findall(.!isnan.(data["vcif"][c, :, r]))[1]
+            mr = findall(.!isnan.(data["α_qxs"][c, :, r]) .&& data["α_qxs"][c, :, r] .!= 0)[1]
             fixed["σ_qxs"][c, mr, r] .= false
         end
     end
+
+
     fixed["ϵ_qxs"] = NamedArray(trues(size(data["ϵ_qxs"])), names(data["ϵ_qxs"]))
 
     calibrate_start["σ_qxs"] = (start_data["vcif"]) ./ repeat(reshape(mapslices(sum, (start_data["vcif"]), dims=2)[:, 1, :], [size(start_data["vcif"])[1], 1, size(start_data["vcif"])[3]]...), inner=[1, size(start_data["vcif"])[2], 1])
@@ -121,9 +123,6 @@ function generate_calibration_inputs(model_container, start_data)
 
     calibrate_start["vdpp"] = start_data["vdpp"]
 
-    #mc = model_container_struct(JuMP.Model(Ipopt.Optimizer), calibrate_start, parameters, sets, fixed)
-    #build_model!(mc)
-    #run_model!(model_container=mc, max_iter=max_iter, constr_viol_tol=constr_viol_tol)
-
+   
     return (fixed_calibration=deepcopy(fixed), data_calibration=deepcopy(calibrate_start))
 end

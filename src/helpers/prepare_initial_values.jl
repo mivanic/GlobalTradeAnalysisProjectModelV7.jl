@@ -104,8 +104,8 @@ function prepare_initial_values(; sets, hData, hParameters)
 
 
     vfob = hData["vfob"]
-    ϵ_qfa = NamedArray(ones(length(comm), length(reg)), (comm,reg))
-    ϵ_qintva = NamedArray(ones(length(comm), length(reg)), (comm,reg))
+    ϵ_qfa = NamedArray(ones(length(acts), length(reg)), (acts,reg))
+    ϵ_qintva = NamedArray(ones(length(acts), length(reg)), (acts,reg))
     ϵ_qga= NamedArray( ones(length(reg)), (reg))
     ϵ_qia= NamedArray( ones(length(reg)), (reg))
     ϵ_qinv =1
@@ -120,7 +120,7 @@ function prepare_initial_values(; sets, hData, hParameters)
         end
     end
 
-    σ_vif = NamedArray( 0.5 * ones(length(comm), length(reg)), (comm, reg))
+    σ_vif = NamedArray( 0.5 * ones(length(acts), length(reg)), (acts, reg))
     σ_ρ= NamedArray( 0.01 * ones(length(reg)), (reg))
 
     for r ∈ reg

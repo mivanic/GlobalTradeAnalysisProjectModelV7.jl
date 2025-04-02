@@ -187,20 +187,20 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
             α_qca[comm, acts, reg]
             γ_qca[acts, reg]
             α_pca[comm, acts, reg]
-            γ_pca[acts, reg]
+            γ_pca[comm, reg]
             σyp[reg]
             σyg[reg]
             α_qga[comm, reg]
             γ_qga[reg]
             α_qia[comm, reg]
             γ_qia[reg]
-            α_qpdqpm[["dom", "imp"], acts, reg]
-            γ_qpdqpm[acts, reg]
-            α_qgdqgm[["dom", "imp"], acts, reg]
-            γ_qgdqgm[acts, reg]
+            α_qpdqpm[["dom", "imp"], comm, reg]
+            γ_qpdqpm[comm, reg]
+            α_qgdqgm[["dom", "imp"], comm, reg]
+            γ_qgdqgm[comm, reg]
             β_qpa[comm, reg]
-            α_qidqim[["dom", "imp"], acts, reg]
-            γ_qidqim[acts, reg]
+            α_qidqim[["dom", "imp"], comm, reg]
+            γ_qidqim[comm, reg]
             α_qxs[comm, reg, reg]
             γ_qxs[comm, reg]
             α_qtmfsd[marg, comm, reg, reg]
@@ -244,11 +244,11 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
                 ϵ_qfdqfm[comm, acts, reg]
                 ϵ_qga[reg]
                 ϵ_qia[reg]
-                ϵ_qgdqgm[acts, reg]
+                ϵ_qgdqgm[comm, reg]
                 ϵ_qxs[comm, reg]
                 ϵ_qes2[endws, reg]
-                ϵ_qpdqpm[acts, reg]
-                ϵ_qidqim[acts, reg]
+                ϵ_qpdqpm[comm, reg]
+                ϵ_qidqim[comm, reg]
                 ϵ_qinv
                 σsave[reg]
 
@@ -415,7 +415,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
             e_pfactor[r=reg], log(pfactor[r] * sum(Array(qfe[:, :, r])[δ_evfp[:, :, r]])) == log(sum(Array(qfe[:, :, r] .* peb[:, :, r])[δ_evfp[:, :, r]]))
 
             # Income
-            e_fincome[r=reg], log(fincome[r]) == log(sum(Array(peb[:, :, r] .* qes[:, :, r])[δ_evfp[:, :, r]]) .- δ[r] .* pinv[r] .* kb[r])
+            e_fincome[r=reg], log(fincome[r]) == log(sum(Array(peb[:, :, r] .* qes[:, :, r])[δ_evfp[:, :, r]]) - δ[r] * pinv[r] * kb[r])
             e_y[r=reg], log(y[r]) ==
                         log(
                 fincome[r] +
