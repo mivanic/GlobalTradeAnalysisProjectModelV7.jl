@@ -40,7 +40,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
     (; reg, comm, marg, acts, endw, endwc, endws, endwm, endwms, endwf) = NamedTuple(Dict(Symbol(k) => mc.sets[k] for k ∈ keys(mc.sets)))
 
     # Read hard parameters
-    (; esubt, esubc, esubva, esubd, etraq, esubq, subpar, incpar, etrae, esubg, esubm, esubs) = NamedTuple(Dict(Symbol(k) => mc.parameters[k] for k ∈ keys(mc.parameters)))
+    (; esubt, esubc, esubva, esubd, etraq, esubq, subpar, incpar, etrae, esubg, esubm, esubs, rordelta, rorflex) = NamedTuple(Dict(Symbol(k) => mc.parameters[k] for k ∈ keys(mc.parameters)))
 
     # All variables used in the model
     @variables(mc.model,
@@ -176,6 +176,11 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
             kb[reg]
             ke[reg]
 
+            rorg
+            rore[reg]
+            rorc[reg]
+            rental[reg]
+
             # Soft parameters
             α_qintva[["int", "va"], acts, reg]
             γ_qintva[acts, reg]
@@ -216,6 +221,14 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
 
         end
     )
+
+    # GTAP has a weird thing where a parameter changes the model structure; we follow it here
+    if rordelta==1
+        @variables(mc.model,
+        begin
+        end
+        )
+    end
 
     if calibration
         @variables(mc.model,
@@ -522,7 +535,6 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
             e_pes[e=endw, a=acts, r=reg; δ_evfp[e, a, r]], log(peb[e, a, r]) == log(pes[e, a, r] * tinc[e, a, r])
 
             # Investment is a fixed share of global investment
-            e_qinv, log.(qinv) .== log.(Vector(α_qinv) .* globalcgds .+ δ .* kb)
             e_pcgdswld, log(pcgdswld) == log(sum(pinv .* (qinv .- δ .* kb)) / sum(qinv .- δ .* kb))
             e_walras_sup, log(walras_sup) == log(pcgdswld * globalcgds)
             e_walras_dem, log(walras_dem) == log(sum(psave .* qsave))
@@ -533,8 +545,30 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
             # Capital accumulation
             e_kb[r=reg], log(ρ[r] * kb[r]) == log(sum(qe[endwc, r]))
             e_ke, log.(ke) .== log.(qinv .+ (1 .- δ) .* kb)
+
+            e_rore[r=reg], log(α_qinv[r] * rore[r]) == log(rorc[r] / (ke[r] / kb[r])^rorflex[r])
+            e_rorc[r=reg], log(rorc[r] * (sum(Array(qes[endwc, :, r] )[δ_evfp[endwc, :, r]]) - δ[r] .* kb[r])) == log(sum(Array(qes[endwc, :, r] )[δ_evfp[endwc, :, r]]) * (rental[r] / pinv[r]))
+            e_rental[r=reg], log(sum(Array(qes[endwc, :, r] )[δ_evfp[endwc, :, r]])*rental[r]) == log(sum(Array(qes[endwc, :, r] .* pes[endwc, :, r])[δ_evfp[endwc, :, r]]))
         end
     )
+
+    if rordelta == 1
+        @constraints(mc.model,
+            begin
+                #e_rorc[r=reg], log((sum(Array(pes[endwc, :, r] .* qes[endwc, :, r])[δ_evfp[endwc, :, r]]) - δ[r] * pinv[r] * kb[r]) * rorc[r]) == log(sum(Array(pes[endwc, :, r] .* qes[endwc, :, r])[δ_evfp[endwc, :, r]]) * rental[r] / pinv[r])
+                e_qinv[r=reg], log(rore[r]) == log(rorg)
+                e_globalcgds, log(globalcgds) == log(sum(qinv .- δ .* kb))
+            end
+        )
+    else
+        @constraints(mc.model,
+            begin
+                e_qinv, log.(qinv) .== log.(Vector(α_qinv) .* globalcgds .+ δ .* kb)
+                e_globalcgds, log(rorg * sum(qinv .- δ .* kb)) == log(sum((qinv .- δ .* kb) .* rore))
+            end
+        )
+    end
+
     if calibration
 
         @constraints(mc.model,

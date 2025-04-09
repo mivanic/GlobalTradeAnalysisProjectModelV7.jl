@@ -86,9 +86,10 @@ function aggregate_data(; hData, hParameters, hSets, comMap, regMap, endMap)
                 "esbs" => aggComb(hParameters["esbs"], NamedArray(mapslices(sum, hData["vst"], dims=2)[:, 1], names(hParameters["esbs"])[1]), [marMap]),
                 "subp" => aggComb(hParameters["subp"], hData["vdpp"] .+ hData["vmpp"], [comMap, regMap]),
                 "incp" => aggComb(hParameters["incp"], hData["vdpp"] .+ hData["vmpp"], [comMap, regMap]),
-                "rflx" => hParameters["rflx"],
+                "rflx" => aggComb(hParameters["rflx"], hData["vkb"], [regMap]),
                 "etre" => aggComb(hParameters["etre"], NamedArray(mapslices(sum, hData["evos"], dims=2)[:, 1, :], names(hParameters["etre"])), [endMap, regMap]), #hParameters["etre"],
-                "eflg" => agg(hParameters["eflg"], [endMap, fixedMap])
+                "eflg" => agg(hParameters["eflg"], [endMap, fixedMap]),
+                "rdlt" => hParameters["rdlt"]
         )
 
         paramAg["eflg"] = paramAg["eflg"] ./ maximum.([paramAg["eflg"][i, :] for i ∈ 1:size(paramAg["eflg"], 1)])

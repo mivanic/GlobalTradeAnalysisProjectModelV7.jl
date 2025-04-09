@@ -12,7 +12,9 @@ function prepare_parameters(; hParameters)
     esubm = hParameters["esbm"]
     esubs = hParameters["esbs"]
     etrae = hParameters["etre"]
+    rordelta = hParameters["rdlt"][]
     endowflag = hParameters["eflg"]
+    rorflex = hParameters["rflx"]
 
     return (parameters = Dict(
         "esubt" => esubt,
@@ -27,7 +29,9 @@ function prepare_parameters(; hParameters)
         "esubm" => esubm,
         "esubs" => esubs,
         "etrae" => etrae,
-        "endowflag" => endowflag
+        "endowflag" => endowflag,
+        "rordelta" => rordelta,
+        "rorflex" => rorflex
     ))
 
 end
