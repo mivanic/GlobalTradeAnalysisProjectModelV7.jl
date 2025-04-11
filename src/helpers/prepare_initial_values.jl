@@ -75,9 +75,10 @@ function prepare_initial_values(; sets, hData, hParameters)
     pop = hData["pop"]
     ug = yg ./ pop
 
-    us = hData["save"] ./ pop
+    #us = hData["save"] ./ pop
 
-    u = up .^ (yp ./ y) .* ug .^ (yg ./ y) .* us .^ (1 .- (yp .+ yg) ./ y)
+    #u = up .^ (yp ./ y) .* ug .^ (yg ./ y) .* us .^ (1 .- (yp .+ yg) ./ y)
+    u = y ./ pop
 
     ppriv = NamedArray(ones(length(reg)), (reg))
     pfactor = NamedArray(ones(length(reg)), (reg))
@@ -132,6 +133,7 @@ function prepare_initial_values(; sets, hData, hParameters)
     rorc = NamedArray(ones(length(reg)), reg)
     rental = NamedArray(ones(length(reg)), reg)
 
+    p = NamedArray(ones(length(reg)), reg)
 
     return (data = Dict(
         "ppriv" => ppriv,
@@ -164,7 +166,7 @@ function prepare_initial_values(; sets, hData, hParameters)
         "u" => u,
         "up" => up,
         "ug" => ug,
-        "us" => us,
+        #"us" => us,
         "pmds" => pmds,
         "pcif" => pcif,
         "pfob" => pfob,
@@ -206,7 +208,8 @@ function prepare_initial_values(; sets, hData, hParameters)
         "rorg" => rorg,
         "rore" => rore,
         "rorc" => rorc,
-        "rental" => rental
+        "rental" => rental,
+        "p" => p
     ))
 
 end

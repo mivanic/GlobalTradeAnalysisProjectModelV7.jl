@@ -112,6 +112,9 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
     σyp = yp ./ y
     σyg = yg ./ y
 
+    σsave = 1 .- σyp .- σyg
+
+
     yp_expanded = permutedims(repeat(yp, inner=[1, size(qpd, 1)]), [2, 1])
     β_qpa_help = (qpd .+ qpm) ./ (subpar ./ (yp_expanded .^ subpar))
     β_qpa = β_qpa_help ./ Array(repeat(mapslices(sum, β_qpa_help, dims=1), inner=[size(β_qpa_help, 1), 1]))
@@ -258,7 +261,8 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
     ρ = mapslices(sum, hData["evos"][endwc, :, :], dims=[1, 2])[1, 1, :] ./ hData["vkb"]
 
     #α_qinv = (qinv .- δ .* kb) ./ fill(globalcgds, size(qinv, 1))
-    α_qinv = (hData["save"]) ./ fill(sum(hData["save"]), size(qinv, 1))
+    #α_qinv = (hData["save"]) ./ fill(sum(hData["save"]), size(qinv, 1))
+    α_qinv = mapslices(sum,hData["vdip"].+hData["vmip"],dims=1)[1,:] ./ fill(sum(mapslices(sum, hData["vdip"].+hData["vmip"],dims =1)[1,:]), size(qinv, 1))
 
 
     # ϵs
@@ -302,6 +306,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         :γ_pca => γ_pca,
         :σyp => σyp,
         :σyg => NamedArray(σyg, reg),
+        :σsave => σsave,
         :β_qpa => β,# NamedArray(Array(value.(β)), axes(β)),
         :α_qpdqpm => α_qpdqpm,
         :γ_qpdqpm => γ_qpdqpm,

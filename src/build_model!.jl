@@ -83,9 +83,9 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
             # Income
             fincome[reg]
             y[reg]
+            p[reg]
             u[reg]
             ug[reg]
-            us[reg]
 
             # Private consumption        
             yp[reg]
@@ -269,8 +269,6 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
             end
         )
     end
-    printstyled(name(all_variables(mc.model)[69]), color=:red)
-
 
     # Remove structurally missing variables
 
@@ -461,9 +459,9 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
             )
 
             # Utility
-            e_ug, ug .== yg ./ pop ./ pgov
-            e_us, us .== qsave ./ pop
-            e_u, log.(u) .== log.(up .^ σyp .* ug .^ σyg .* us .^ (1 .- σyp .- σyg))
+            e_ug, log.(ug) .== log.(yg ./ pop ./ pgov)
+            e_p, log.(p) .== log.(ppriv .* σyp .+ pgov .* σyg .+ psave .* (1 .- σyp .- σyg))
+            e_u, log.(u) .== log.((y ./ p ./ pop) .* uelas)
 
             # Household Income
             e_yp, log.(yp) .== log.(y .* Vector(σyp) .* uelas ./ uepriv)
@@ -493,7 +491,8 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
             e_pinv[r=reg], log.(pinv[r] * sum(Vector(qia[:, r])[δ_qia[:, r]])) == log.(sum(Vector(pia[:, r] .* qia[:, r])[δ_qia[:, r]]))
             e_qidqim[c=comm, r=reg; δ_qia[c, r]], log.([qid[c, r], qim[c, r]]) .== log.(ces(qia[c, r], [pid[c, r], pim[c, r]], Vector(α_qidqim[:, c, r]), esubd[c, r], γ_qidqim[c, r]))
             e_pia[c=comm, r=reg; δ_qia[c, r]], log(pia[c, r] .* qia[c, r]) == log(pid[c, r] * qid[c, r] + pim[c, r] * qim[c, r])
-            e_psave[r=reg], log(psave[r]) == log(pinv[r] + sum(((qinv .- δ .* kb) .- qsave) .* pinv ./ sum(qinv .- δ .* kb)))
+            #e_psave[r=reg], log(psave[r]) == log(pinv[r] + sum(((qinv .- δ .* kb) .- qsave) .* pinv ./ sum(qinv .- δ .* kb)))
+            e_psave[r=reg], log(psave[r]) == log(pinv[r]) + sum(((qinv .- δ .* kb) .- qsave) .* log.(pinv) ./ sum(qinv .- δ .* kb))
 
             # Trade - exports
             e_qms[c=comm, r=reg], log.(qms[c, r]) == log.(sum(Vector(qfm[c, :, r])[δ_qfa[c, :, r]]) + qpm[c, r] + (δ_qga[c, r] ? qgm[c, r] : 0) + (δ_qia[c, r] ? qim[c, r] : 0))

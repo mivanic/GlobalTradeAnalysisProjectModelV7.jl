@@ -66,7 +66,7 @@ function generate_starting_values(; hSets, hData, hParameters)
     lower = merge(
         Dict(k => q_min for k ∈ ["pop", "qint", "qva", "qo", "qfa", "qfe", "qfd", "qfm", "qca", "qc", "qes", "u", "up", "ug", "us", "qpa", "qpd", "qpm", "qga", "qgd", "qgm", "qia", "qid", "qim", "qinv", "qms", "qxs", "qtmfsd", "qtm", "qst", "qds", "qe", "qesf", "walras_sup", "walras_dem", "kb", "ke", "globalcgds","rorg","rore","rorc","rental"]),
         Dict("qsave" => -q_max),
-        Dict(k => p_min for k ∈ ["pfactwld", "pca", "pcgdswld", "pcif", "pds", "pe", "peb", "pes", "pfa", "pfactor", "pfd", "pfe", "pfm", "pfob", "pga", "pgd", "pgm", "pgov", "pia", "pid", "pim", "pint", "pinv", "pmds", "pms", "po", "pop", "ppa", "ppd", "ppm", "ppriv", "ps", "psave", "pt", "ptrans", "pva","rorg","rore","rorc","rental"]),
+        Dict(k => p_min for k ∈ ["pfactwld", "pca", "pcgdswld", "pcif", "pds", "pe", "peb", "pes", "pfa", "pfactor", "pfd", "pfe", "pfm", "pfob", "pga", "pgd", "pgm", "pgov", "pia", "pid", "pim", "pint", "pinv", "pmds", "pms", "po", "pop", "ppa", "ppd", "ppm", "ppriv", "ps", "psave", "pt", "ptrans", "pva","rorg","rore","rorc","rental","p"]),
         Dict(k => t_min for k ∈ ["tfd", "tfe", "tfm", "tgd", "tgm", "tid", "tim", "tinc", "tm", "tms", "to", "tpd", "tpm", "tx", "txs"]),
         Dict(k => α_min for k ∈ ["α_pca", "α_qca", "α_qes2", "α_qfa", "α_qfdqfm", "α_qfe", "α_qga", "α_qgdqgm", "α_qia", "α_qidqim", "α_qintva", "α_qinv", "α_qpdqpm", "α_qst", "α_qtmfsd", "α_qxs"]),
         Dict(k => γ_min for k ∈ ["γ_pca", "γ_qca", "γ_qes2", "γ_qfa", "γ_qfdqfm", "γ_qfe", "γ_qga", "γ_qgdqgm", "γ_qia", "γ_qidqim", "γ_qintva", "γ_qpdqpm", "γ_qst", "γ_qxs"]),
@@ -83,7 +83,7 @@ function generate_starting_values(; hSets, hData, hParameters)
 
     upper = merge(
         Dict(k => q_max for k ∈ ["pop", "qint", "qva", "qo", "qfa", "qfe", "qfd", "qfm", "qca", "qc", "qes", "u", "up", "ug", "us", "qpa", "qpd", "qpm", "qga", "qgd", "qgm", "qsave", "qia", "qid", "qim", "qinv", "qms", "qxs", "qtmfsd", "qtm", "qst", "qds", "qe", "qesf", "walras_sup", "walras_dem", "kb", "ke", "globalcgds"]),
-        Dict(k => p_max for k ∈ ["pfactwld", "pca", "pcgdswld", "pcif", "pds", "pe", "peb", "pes", "pfa", "pfactor", "pfd", "pfe", "pfm", "pfob", "pga", "pgd", "pgm", "pgov", "pia", "pid", "pim", "pint", "pinv", "pmds", "pms", "po", "pop", "ppa", "ppd", "ppm", "ppriv", "ps", "psave", "pt", "ptrans", "pva","rorg","rore","rorc","rental"]),
+        Dict(k => p_max for k ∈ ["pfactwld", "pca", "pcgdswld", "pcif", "pds", "pe", "peb", "pes", "pfa", "pfactor", "pfd", "pfe", "pfm", "pfob", "pga", "pgd", "pgm", "pgov", "pia", "pid", "pim", "pint", "pinv", "pmds", "pms", "po", "pop", "ppa", "ppd", "ppm", "ppriv", "ps", "psave", "pt", "ptrans", "pva","rorg","rore","rorc","rental","p"]),
         Dict(k => t_max for k ∈ ["tfd", "tfe", "tfm", "tgd", "tgm", "tid", "tim", "tinc", "tm", "tms", "to", "tpd", "tpm", "tx", "txs"]),
         Dict(k => α_max for k ∈ ["α_pca", "α_qca", "α_qes2", "α_qfa", "α_qfdqfm", "α_qfe", "α_qga", "α_qgdqgm", "α_qia", "α_qidqim", "α_qintva", "α_qinv", "α_qpdqpm", "α_qst", "α_qtmfsd", "α_qxs"]),
         Dict("σ_qinv" => 1),

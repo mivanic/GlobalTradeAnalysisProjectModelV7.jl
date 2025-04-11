@@ -69,7 +69,7 @@ function generate_calibration_inputs(model_container, start_data)
     fixed["σ_vp"] = NamedArray(trues(size(data["σ_vp"])), names(data["σ_vp"]))
     fixed["σ_vp"][1, :] .= false
     fixed["σ_vdp"] = NamedArray(trues(size(data["σ_vdp"])), names(data["σ_vdp"]))
-    fixed["u"] = NamedArray(trues(size(data["u"])), names(data["u"])...)
+    fixed["up"] = NamedArray(trues(size(data["up"])), names(data["up"])...)
 
     calibrate_start["σ_vp"] = (start_data["vdpp"] .+ start_data["vmpp"]) ./ repeat(reshape(mapslices(sum, (start_data["vdpp"] .+ start_data["vmpp"]), dims=1)[1, :], [1, size(start_data["vmpp"])[2]]...), inner=[size(start_data["vmpp"])[1], 1])
     calibrate_start["σ_vdp"] = (start_data["vdpp"]) ./ (start_data["vdpp"] .+ start_data["vmpp"])
