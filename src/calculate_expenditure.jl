@@ -50,7 +50,7 @@ function calculate_expenditure(; sets, data0, data1, parameters, max_iter=50, co
 
             q_min <= u[reg] <= q_max
             q_min <= ug[reg] <= q_max
-            q_min <= us[reg] <= q_max
+            #q_min <= us[reg] <= q_max
 
             # Private consumption        
             y_min <= yp[reg] <= y_max
@@ -76,6 +76,9 @@ function calculate_expenditure(; sets, data0, data1, parameters, max_iter=50, co
             1e-8 <= β_qpa[comm, reg]
             1e-8 <= α_qga[comm, reg] <= 1
 
+
+            1e-2 <= p[reg] <=1e2
+            1e-2 <= ppriv[reg] <=1e2
         end
     )
 
@@ -85,9 +88,11 @@ function calculate_expenditure(; sets, data0, data1, parameters, max_iter=50, co
     @constraints(model,
         begin
             # Utility
-            e_u, u .== up.^σyp .* ug.^σyg .* us.^(1 .-σyp .- σyg)
+            #e_u, u .== up.^σyp .* ug.^σyg .* us.^(1 .-σyp .- σyg)
+            e_u, log.(u) .== log.((y ./ p ./ pop) .* uelas)
+
             e_ug, ug .== yg ./ pop ./ pgov
-            e_us, us .== qsave ./ pop
+            #e_us, us .== qsave ./ pop
             e_uepriv[r=reg], uepriv[r] == sum(qpa[:, r] .* ppa[:, r] .* Vector(incpar[:, r])) / yp[r]
             e_uelas[r=reg], uelas[r] == 1 / (σyp[r] / uepriv[r] + σyg[r] + (1 - σyp[r] - σyg[r]))
 
@@ -106,6 +111,9 @@ function calculate_expenditure(; sets, data0, data1, parameters, max_iter=50, co
 
             # Saving
             e_qsave, log.(y) .== log.(yp .+ yg .+ psave .* qsave .* uelas)
+
+            e_p, log.(p) .== log.(ppriv .* σyp .+ pgov .* σyg .+ psave .* (1 .- σyp .- σyg))
+            e_ppriv[r=reg], log(ppriv[r] * sum(qpa[:, r])) == log(sum(ppa[:, r] .* qpa[:, r]))
         end
     )
 
