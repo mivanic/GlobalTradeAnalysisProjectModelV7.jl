@@ -41,12 +41,6 @@ mc = generate_initial_model(hSets=hSets, hData=hData, hParameters=hParameters)
 # Keep the start data for calibration---the value flows are the correct ones
 start_data = deepcopy(mc.data)
 
-# Run the model to get a solution
-run_model!(mc)
-
-# Let's keep the starting values of all data
-start_solution = deepcopy(mc.data)
-
 # Get the required inputs for calibration by providing the target values in start_data
 (;fixed_calibration, data_calibration)=generate_calibration_inputs(mc, start_data)
 
