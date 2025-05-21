@@ -130,7 +130,7 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
             pop2
             qpa2[comm]
             ppa2[comm]
-            1e-8 <= cy2
+            #1e-8 <= cy2
             subpar2[comm]
             incpar2[comm]
         end
@@ -157,10 +157,11 @@ function prepare_initial_calibrated_parameters(; data, sets, parameters, hData)
         fix.(Vector(ppa2[comm]), ppa[comm, r])
         fix.(Vector(subpar2[comm]), subpar[comm, r])
         fix.(Vector(incpar2[comm]), incpar[comm, r])
+        #fix.(Vector(β2)[1],1; force = true)
         optimize!(m)
         if !is_solved_and_feasible(m)
             #println("Utility not found for $r")
-            save_object("output.jld2",Dict("cy2"=>cy[r], "pop2"=>pop[r], "qpa2"=>qpa[comm, r], "ppa2"=>ppa[comm, r], "subpar2"=>subpar[comm, r], "incpar2"=>incpar[comm, r]))
+            #save_object("output.jld2",Dict("cy2"=>cy[r], "pop2"=>pop[r], "qpa2"=>qpa[comm, r], "ppa2"=>ppa[comm, r], "subpar2"=>subpar[comm, r], "incpar2"=>incpar[comm, r]))
             throw("Could not solve for initial utility in $r")
         end
         u2[r] .= value(u3)
