@@ -27,13 +27,7 @@ This example will use a sample data set to do a simple tariff simulation.
 using GlobalTradeAnalysisProjectModelV7, HeaderArrayFile, NamedArrays
 
 # Get the sample data
-(hData, hParameters, hSets) = get_sample_data()
-
-# Clean the data: trade below 1e-6 makes little sense
-valid_trade = hData["vxsb"].>1e-4
-for k ∈ ["vcif","vmsb","vfob","vxsb"]
-    hData[k][.!valid_trade].=0
-end
+(; hData, hParameters, hSets) = get_sample_data()
 
 # Produce initial uncalibrated model using the GTAP data
 mc = generate_initial_model(hSets=hSets, hData=hData, hParameters=hParameters)
@@ -59,9 +53,11 @@ calibrated_data = deepcopy(mc.data)
 # Let's change the closure to the default (simulation) closure
 mc.fixed = deepcopy(fixed_default)
 
+# Drop the equations that are not needed for solution
+rebuild_model!(mc)
+
 # Start with the calibrated data
 mc.data = deepcopy(calibrated_data)
-
 
 ### TARIFF SCENARIO
 # Double the power of tariff
