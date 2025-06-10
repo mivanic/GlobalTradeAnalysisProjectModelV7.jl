@@ -461,7 +461,7 @@ function build_model!(mc; max_iter=50, constr_viol_tol=1e-8, bound_push=1e-15, c
             # Utility
             e_ug, log.(ug) .== log.(yg ./ pop ./ pgov)
             e_p, log.(p) .== log.(ppriv .* σyp .+ pgov .* σyg .+ psave .* (1 .- σyp .- σyg))
-            e_u, log.(u) .== log.((y ./ p ./ pop) .* uelas)
+            e_u, log.(u) .== log.((y ./ p ./ pop)) 
 
             # Household Income
             e_yp, log.(yp) .== log.(y .* Vector(σyp) .* uelas ./ uepriv)

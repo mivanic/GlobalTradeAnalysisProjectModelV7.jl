@@ -89,7 +89,7 @@ function calculate_expenditure(; sets, data0, data1, parameters, max_iter=50, co
         begin
             # Utility
             #e_u, u .== up.^σyp .* ug.^σyg .* us.^(1 .-σyp .- σyg)
-            e_u, log.(u) .== log.((y ./ p ./ pop) .* uelas)
+            e_u, log.(u) .== log.((y ./ p ./ pop))
 
             e_ug, ug .== yg ./ pop ./ pgov
             #e_us, us .== qsave ./ pop
