@@ -10,4 +10,8 @@ function solve_model!(model_container; max_iter, constr_viol_tol, bound_push)
 
     # Solve the model
     optimize!(model_container.model)
+
+    if !is_solved_and_feasible(model_container.model)
+        throw("Not solved!")
+    end
 end

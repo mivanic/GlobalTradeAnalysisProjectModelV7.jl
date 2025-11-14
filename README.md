@@ -46,9 +46,14 @@ using GlobalTradeAnalysisProjectModelV7
 using HeaderArrayFile, NamedArrays
 
 # Load the disaggregated data (e.g., from FlexAgg)
-parameters = HeaderArrayFile.readHar("./gsdfpar.har")
-data = HeaderArrayFile.readHar("./gsdfdat.har")
-sets = HeaderArrayFile.readHar("./gsdfset.har")
+data_har = HeaderArrayFile.File("./gsdfdat.har")
+sets_har = HeaderArrayFile.File("./gsdfset.har")
+parameters_har = HeaderArrayFile.File("./gsdfpar.har")
+
+# Turn the HeaderArray format into NamedArrays inside dictionaries
+data = Dict(keys(data_har) .=> NamedArray.(values(data_har)))
+sets = Dict(keys(sets_har) .=> NamedArray.(values(sets_har)))
+data = Dict(keys(parameters_har) .=> NamedArray.(values(parameters_har)))
 
 # Aggregate the data (assuming version 11 data)
 
