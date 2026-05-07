@@ -53,7 +53,7 @@ parameters_har = HeaderArrayFile.File("./gsdfpar.har")
 # Turn the HeaderArray format into NamedArrays inside dictionaries
 data = Dict(keys(data_har) .=> NamedArray.(values(data_har)))
 sets = Dict(keys(sets_har) .=> NamedArray.(values(sets_har)))
-data = Dict(keys(parameters_har) .=> NamedArray.(values(parameters_har)))
+parameter = Dict(keys(parameters_har) .=> NamedArray.(values(parameters_har)))
 
 # Aggregate the data (assuming version 11 data)
 
